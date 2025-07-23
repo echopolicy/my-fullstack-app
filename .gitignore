@@ -1,0 +1,3 @@
+frontend.nosync/node_modules/*
+
+backend.nosync/node_modules/*
