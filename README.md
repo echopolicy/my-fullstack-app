@@ -68,3 +68,7 @@ Contributions are welcome! Please open an issue or submit a pull request for any
 ### License
 
 This project is licensed under the MIT License.
+
+## Information Only
+
+You can change folder names (frontend and backend) to remove .nosync. It was added to remove syncing it with iCloud on MacOS. 
