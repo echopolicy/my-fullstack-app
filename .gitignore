@@ -48,3 +48,10 @@ Thumbs.db
 *.tmp
 *.temp
 backend.nosync/.env
+frontend.nosync/build/asset-manifest.json
+frontend.nosync/build/index.html
+frontend.nosync/build/static/css/main.85e45b26.css
+frontend.nosync/build/static/css/main.85e45b26.css.map
+frontend.nosync/build/static/js/main.a88e2d58.js
+frontend.nosync/build/static/js/main.a88e2d58.js.LICENSE.txt
+frontend.nosync/build/static/js/main.a88e2d58.js.map
