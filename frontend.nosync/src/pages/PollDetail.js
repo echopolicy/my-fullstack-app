@@ -5,20 +5,17 @@ const PollDetail = () => {
   const { id } = useParams();
   const [poll, setPoll] = useState(null);
   const [hasVoted, setHasVoted] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedOptions, setSelectedOptions] = useState([]);
   const [showToast, setShowToast] = useState(false);
-
 
   useEffect(() => {
     const voted = localStorage.getItem(`voted-${id}`) === 'true';
     setHasVoted(voted);
 
-    // Fetch the poll data by ID
     const fetchPoll = async () => {
       try {
         const response = await fetch(`http://localhost:5001/api/polls/${id}`);
         const data = await response.json();
-         console.log('Fetched poll votes:', data.votes);
         setPoll(data);
       } catch (err) {
         console.error('Error fetching poll:', err);
@@ -28,8 +25,20 @@ const PollDetail = () => {
     fetchPoll();
   }, [id]);
 
+  const handleOptionChange = (index) => {
+    if (poll.pollType === 'multiple') {
+      setSelectedOptions((prev) =>
+        prev.includes(index)
+          ? prev.filter((i) => i !== index)
+          : [...prev, index]
+      );
+    } else {
+      setSelectedOptions([index]);
+    }
+  };
+
   const handleVote = async () => {
-    if (selectedOption === null || hasVoted) return;
+    if (selectedOptions.length === 0 || hasVoted) return;
 
     try {
       const response = await fetch(`http://localhost:5001/api/polls/${id}/vote`, {
@@ -37,7 +46,7 @@ const PollDetail = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ optionIndex: selectedOption }),
+        body: JSON.stringify({ optionIndexes: selectedOptions }),
       });
 
       if (response.ok) {
@@ -61,8 +70,10 @@ const PollDetail = () => {
     return <div className="p-6">Loading...</div>;
   }
 
- const votesArray = Array.isArray(poll.votes) ? poll.votes : Array(poll.options.length).fill(0);
- const totalVotes = votesArray.reduce((a, b) => a + b, 0) || 1;
+  const votesArray = Array.isArray(poll.votes)
+    ? poll.votes
+    : Array(poll.options.length).fill(0);
+  const totalVotes = votesArray.reduce((a, b) => a + b, 0) || 1;
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
@@ -74,10 +85,11 @@ const PollDetail = () => {
             {poll.options.map((option, index) => (
               <label key={index} className="block">
                 <input
-                  type="radio"
+                  type={poll.pollType === 'multiple' ? 'checkbox' : 'radio'}
                   name="pollOption"
                   value={index}
-                  onChange={() => setSelectedOption(index)}
+                  checked={selectedOptions.includes(index)}
+                  onChange={() => handleOptionChange(index)}
                   className="mr-2"
                 />
                 {option.text}
@@ -86,7 +98,7 @@ const PollDetail = () => {
           </div>
           <button
             onClick={handleVote}
-            disabled={selectedOption === null}
+            disabled={selectedOptions.length === 0}
             className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
           >
             Submit Vote
@@ -112,7 +124,6 @@ const PollDetail = () => {
               </div>
             );
           })}
-
         </div>
       )}
 

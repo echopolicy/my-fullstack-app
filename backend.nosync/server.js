@@ -6,7 +6,7 @@ const sequelize = require('./config/database');
 const pollsRouter = require('./routes/polls');
 
 // ✅ Import the model so Sequelize knows about it
-require('./models/poll'); 
+require('./models/Poll'); 
 
 const app = express();
 const PORT = process.env.PORT || 5000;

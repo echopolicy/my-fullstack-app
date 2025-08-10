@@ -8,19 +8,21 @@ router.post('/', async (req, res) => {
   try {
     const { options } = req.body;
 
-    if (!Array.isArray(options)) {
-      return res.status(400).json({ error: 'Options must be an array' });
+    if (!Array.isArray(options) || options.length === 0) {
+      return res.status(400).json({ error: 'Options must be a non-empty array' });
     }
 
+    // If options is just array of strings, you're good.
     req.body.votes = Array(options.length).fill(0);
 
     const poll = await Poll.create(req.body);
     res.status(201).json(poll);
   } catch (error) {
-    console.error(error);
+    console.error('Poll creation error:', error);
     res.status(400).json({ error: 'Failed to create poll' });
   }
 });
+
 
 // Get featured/trending polls
 router.get('/featured', async (req, res) => {
@@ -79,28 +81,19 @@ router.put('/:id/vote', async (req, res) => {
     const poll = await Poll.findByPk(req.params.id);
     if (!poll) return res.status(404).json({ message: 'Poll not found' });
 
-    const options = [...poll.options];
-    const votes = [...poll.votes];
-
-    if (optionIndex < 0 || optionIndex >= options.length) {
+    if (optionIndex < 0 || optionIndex >= poll.votes.length) {
       return res.status(400).json({ message: 'Invalid option index' });
     }
 
-    // Update options array (optional, only if you're tracking votes there too)
-    if (!options[optionIndex].votes) options[optionIndex].votes = 0;
-    options[optionIndex].votes += 1;
+    const updatedVotes = [...poll.votes];
+    updatedVotes[optionIndex] += 1;
 
-    // Update votes array (this is what your model actually saves)
-    votes[optionIndex] += 1;
-
-    // Save changes
-    poll.options = options;
-    poll.votes = votes;
+    poll.votes = updatedVotes;
 
     await poll.save();
     res.json(poll);
   } catch (err) {
-    console.error(err);
+    console.error('Vote error:', err);
     res.status(500).json({ message: err.message });
   }
 });
