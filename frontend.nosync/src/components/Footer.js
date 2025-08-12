@@ -1,7 +1,13 @@
-const Footer = () => (
-  <footer className="bg-gray-100 text-center text-sm text-gray-600 py-4 border-t">
-    © {new Date().getFullYear()} EchoPolicy. All rights reserved.
-  </footer>
-);
+import { Link } from "react-router-dom";
 
-export default Footer;
+export default function Footer() {
+  return (
+    <footer style={{ padding: "1rem", textAlign: "center" }}>
+      <p>
+        <Link to="/terms" style={{ marginRight: "1rem" }}>Terms & Conditions</Link>
+        <Link to="/privacy">Privacy Policy</Link>
+      </p>
+      <small>© {new Date().getFullYear()} EchoPolicy</small>
+    </footer>
+  );
+}

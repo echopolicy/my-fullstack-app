@@ -75,28 +75,39 @@ router.get('/:id', async (req, res) => {
 
 // Vote on a poll
 router.put('/:id/vote', async (req, res) => {
-  const { optionIndex } = req.body;
+  const { optionIndexes } = req.body; // match frontend naming
 
   try {
     const poll = await Poll.findByPk(req.params.id);
     if (!poll) return res.status(404).json({ message: 'Poll not found' });
 
-    if (optionIndex < 0 || optionIndex >= poll.votes.length) {
-      return res.status(400).json({ message: 'Invalid option index' });
+    let updatedVotes = [...poll.votes];
+
+    // Handle single or multiple votes
+    if (Array.isArray(optionIndexes)) {
+      for (let idx of optionIndexes) {
+        if (idx >= 0 && idx < updatedVotes.length) {
+          updatedVotes[idx] += 1;
+        }
+      }
+    } else if (typeof optionIndexes === 'number') {
+      if (optionIndexes >= 0 && optionIndexes < updatedVotes.length) {
+        updatedVotes[optionIndexes] += 1;
+      }
+    } else {
+      return res.status(400).json({ message: 'Invalid option indexes' });
     }
 
-    const updatedVotes = [...poll.votes];
-    updatedVotes[optionIndex] += 1;
-
     poll.votes = updatedVotes;
-
     await poll.save();
+
     res.json(poll);
   } catch (err) {
     console.error('Vote error:', err);
     res.status(500).json({ message: err.message });
   }
 });
+
 
 // Edit a poll
 router.put('/:id', async (req, res) => {

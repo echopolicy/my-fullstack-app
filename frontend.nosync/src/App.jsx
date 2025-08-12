@@ -8,6 +8,8 @@ import About from './pages/About';
 import NotFound from './pages/NotFound';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import Terms from "./pages/Terms";
+import PrivacyPolicy from "./pages/PrivacyPolicy";  
 
 function App() {
   return (
@@ -23,6 +25,9 @@ function App() {
             <Route path="/admin/create" element={<PollCreate />} />
              <Route path="/create" element={<PollCreate />} />
             <Route path="/about" element={<About />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
