@@ -14,7 +14,7 @@ const PollDetail = () => {
 
     const fetchPoll = async () => {
       try {
-        const response = await fetch(`http://localhost:5001/api/polls/${id}`);
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/polls/${id}`);
         const data = await response.json();
         setPoll(data);
       } catch (err) {
@@ -41,7 +41,7 @@ const PollDetail = () => {
     if (selectedOptions.length === 0 || hasVoted) return;
 
     try {
-      const response = await fetch(`http://localhost:5001/api/polls/${id}/vote`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/polls/${id}/vote`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

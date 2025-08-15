@@ -14,6 +14,7 @@ const PollCreate = () => {
   const [showToast, setShowToast] = useState(false);
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // Added for loading state
   const navigate = useNavigate();
 
   const handleOptionChange = (index, value) => {
@@ -32,8 +33,18 @@ const PollCreate = () => {
     }
   };
 
+  const handleTagChange = (e) => {
+    const value = e.target.value;
+    setTags((prevTags) =>
+      prevTags.includes(value)
+        ? prevTags.filter((tag) => tag !== value)
+        : [...prevTags, value]
+    );
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    setError(''); // Clear any previous errors on new preview
 
     const newPoll = {
       question,
@@ -53,34 +64,31 @@ const PollCreate = () => {
   };
 
   const handleMakeLive = async () => {
+    setIsLoading(true);
+    setError('');
+
     try {
-      const response = await fetch('http://localhost:5001/api/polls', {
+      // CORRECTED: Using backticks and process.env for the API URL
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/polls`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(preview),
       });
 
       if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || 'Failed to make poll live');
+        const errData = await response.json();
+        throw new Error(errData.error || 'Failed to make the poll live.');
       }
 
       const data = await response.json();
       console.log('Poll created:', data);
-      navigate('/');
+      navigate('/'); // Navigate to homepage on success
     } catch (err) {
       console.error(err);
       setError(err.message);
+    } finally {
+      setIsLoading(false); // Ensure loading is turned off
     }
-  };
-
-  const handleTagChange = (e) => {
-    const value = e.target.value;
-    setTags((prevTags) =>
-      prevTags.includes(value)
-        ? prevTags.filter((tag) => tag !== value)
-        : [...prevTags, value]
-    );
   };
 
   return (
@@ -161,6 +169,7 @@ const PollCreate = () => {
               className="w-full border px-4 py-2 rounded"
               value={closeDate}
               onChange={(e) => setCloseDate(e.target.value)}
+              min={new Date().toISOString().split("T")[0]} // Prevent selecting past dates
             />
           </div>
 
@@ -201,7 +210,7 @@ const PollCreate = () => {
             <button
               type="button"
               onClick={addOption}
-              className="text-blue-600 hover:underline text-sm"
+              className="text-blue-600 hover:underline text-sm mt-1"
             >
               + Add another option
             </button>
@@ -209,7 +218,7 @@ const PollCreate = () => {
 
           <button
             type="submit"
-            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition w-full sm:w-auto"
           >
             Preview Poll
           </button>
@@ -217,39 +226,32 @@ const PollCreate = () => {
       ) : (
         <div className="bg-white shadow p-6 rounded mt-6">
           <h3 className="text-xl font-bold mb-4">{preview.question}</h3>
-          <p className="text-sm text-gray-600 mb-2">
-            <strong>Category:</strong> {preview.category}
-          </p>
-          <p className="text-sm text-gray-600 mb-2">
-            <strong>Tags:</strong> {preview.tags.join(', ')}
-          </p>
-          <p className="text-sm text-gray-600 mb-4">
-            <strong>Type:</strong>{' '}
-            {preview.pollType === 'single' ? 'Single Choice' : 'Multiple Choice'}
-          </p>
-          <ul className="mb-4">
+          <div className="space-y-2 text-sm text-gray-600 mb-4">
+            <p><strong>Category:</strong> {preview.category}</p>
+            <p><strong>Tags:</strong> {preview.tags.join(', ') || 'None'}</p>
+            <p><strong>Type:</strong> {preview.pollType === 'single' ? 'Single Choice' : 'Multiple Choice'}</p>
+            {preview.closeDate && (
+              <p><strong>Closes on:</strong> {new Date(preview.closeDate).toLocaleDateString()}</p>
+            )}
+          </div>
+          <ul className="list-disc list-inside mb-6 space-y-1">
             {preview.options.map((opt, i) => (
-              <li key={i} className="mb-1">
-                - {opt.text}
-              </li>
+              <li key={i}>{opt.text}</li>
             ))}
           </ul>
-          {preview.closeDate && (
-            <p className="text-sm text-gray-500 mb-4">
-              Closes on: {new Date(preview.closeDate).toLocaleDateString()}
-            </p>
-          )}
-
+          
           <div className="flex gap-4">
             <button
               onClick={handleMakeLive}
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:bg-green-300 disabled:cursor-not-allowed"
+              disabled={isLoading}
             >
-              ✅ Make It Live
+              {isLoading ? 'Submitting...' : '✅ Make It Live'}
             </button>
             <button
               onClick={() => setPreview(null)}
-              className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+              className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 disabled:bg-gray-200 disabled:cursor-not-allowed"
+              disabled={isLoading}
             >
               ✏️ Edit
             </button>

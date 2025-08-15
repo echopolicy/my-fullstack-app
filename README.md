@@ -72,3 +72,29 @@ This project is licensed under the MIT License.
 ## Information Only
 
 You can change folder names (frontend and backend) to remove .nosync. It was added to remove syncing it with iCloud on MacOS. 
+
+## Deployment
+
+For deploying the code, you can explore free options. For the purpose of this project our code is deployed on Vercel, backend on Hostinger and database on Supabase
+
+### Front-End
+1. Vercel gives free hosting for front end only. Create a free account on vercel.com. Follow the prompts to create the account. 
+2. Once the account is created, link your GitHub account. This will come in handy when doing the deploys. Vercel automatically detects the changes and pushes it to your Prod/Preview branch
+3. Make sure you have your domains pointed as well. Vercel will give you the instructions on how to make DNS changes to your domain hosting. You'd need to create an A record in your domain hosting and a CNAME for www. Additionally, Vercel will automatically create a let's encrypt SSL for your project
+
+### PostgreSQL
+1. Supabase provides a free tier for your project. If the traffic is not heavy, free tier will be sufficient. 
+2. Follow the prompts to create the account and the database. 
+3. You'd have to run the DDL to create the table. Click on connect once you are done with database
+4. At the time of writing this readme, Supabase Direct Connection is not IPv4 compatible. For your web project, you'd have to select the Session Pooler. Make sure your env file has the right settings
+
+### Backend (APIs)
+1. A lightweight VPS hosting from Hostinger or any hosting provider that gives you root access to the server will do. 
+2. For easy installation, you can install an open source Panel like easyPanel. This is mostly point and click without the need for logging into the server
+3. Once you deploy your code, make sure your API's are listening to the correct port and the path is right in the env file of your frontend. We used https://api.echopolicy.com/api.
+4. Make sure you in your domain hosting you have an A record with api created, pointing to the server IP address of your hosting. 
+
+To debug your deployment a step-by-step approach will be 
+1. Deploy Frontend (API's pointing to local server and local db) and test
+2. Deploy Supbase (backend pointing to Supabase) and test
+3. Deploy Backend and test
