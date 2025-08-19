@@ -65,7 +65,7 @@ const PollFeed = () => {
                 )}
 
                 <p className="text-sm text-gray-600">
-                  Total Votes: {poll.votes}
+                  Total Votes: {Array.isArray(poll.votes) ? poll.votes.reduce((sum, current) => sum + current, 0) : 0}
                 </p>
                 {poll.closeDate && (
                    <p className="text-sm text-gray-500">

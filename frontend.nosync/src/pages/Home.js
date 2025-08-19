@@ -64,7 +64,8 @@ const Home = () => {
             <div className="flex-grow">
               <h3 className="font-semibold text-base mb-2">{poll.question}</h3>
               <p className="text-sm text-gray-600 mb-2">
-                Total Votes: {poll.votes}
+                 {/* CORRECTED: Sum the votes array */}
+                Total Votes: {Array.isArray(poll.votes) ? poll.votes.reduce((sum, current) => sum + current, 0) : 0}
               </p>
             </div>
             <Link
