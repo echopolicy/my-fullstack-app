@@ -19,4 +19,12 @@ sequelize.authenticate()
   .catch(err => console.error('❌ Unable to connect to the database:', err));
 
 
+// Below code will sync models with the database
+// The { alter: true } option will check the current state of the table in the database and then perform the necessary changes to make it
+// match the model. You can use this to make changes to your model as needed
+//sequelize.sync({ alter: false })
+//  .then(() => console.log('🔄 Database synchronized'))
+//  .catch(err => console.error('❌ Error synchronizing database:', err));
+
+
 module.exports = sequelize;

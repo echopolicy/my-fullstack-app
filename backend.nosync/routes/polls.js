@@ -5,17 +5,29 @@ const { Op } = require('sequelize');
 
 
 router.post('/', async (req, res) => {
-  try {
-    const { options } = req.body;
+
+  try {    
+    const { options, question, category, tags, closeDate, pollType, visibilityPublic, trending } = req.body;
 
     if (!Array.isArray(options) || options.length === 0) {
       return res.status(400).json({ error: 'Options must be a non-empty array' });
     }
 
-    // If options is just array of strings, you're good.
-    req.body.votes = Array(options.length).fill(0);
+    // Create a clean data object instead of mutating req.body
+    const pollData = {
+      question,
+      category,
+      tags: tags || [],
+      closeDate: closeDate || null,
+      pollType,
+      visibilityPublic: visibilityPublic, // This should work now
+      options,
+      votes: Array(options.length).fill(0), // Create votes array here
+      trending: trending || false
+    };
 
-    const poll = await Poll.create(req.body);
+    const poll = await Poll.create(pollData);
+        
     res.status(201).json(poll);
   } catch (error) {
     console.error('Poll creation error:', error);

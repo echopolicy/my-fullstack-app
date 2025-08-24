@@ -27,6 +27,10 @@ const Poll = sequelize.define('Poll', {
     type: DataTypes.ENUM('single', 'multiple'),
     allowNull: false,
   },
+    visibilityPublic: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
   options: {
     type: DataTypes.JSONB, // JSON array of options with text and votes
     allowNull: false,

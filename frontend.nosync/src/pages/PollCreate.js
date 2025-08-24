@@ -10,11 +10,12 @@ const PollCreate = () => {
   const [tags, setTags] = useState([]);
   const [closeDate, setCloseDate] = useState('');
   const [pollType, setPollType] = useState('single');
+  const [visibility, setVisibility] = useState('public'); // State remains 'public' or 'private' for the radio buttons
   const [options, setOptions] = useState(['', '']);
   const [showToast, setShowToast] = useState(false);
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false); // Added for loading state
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleOptionChange = (index, value) => {
@@ -44,8 +45,9 @@ const PollCreate = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setError(''); // Clear any previous errors on new preview
+    setError('');
 
+    //Fixed Bug to include visibility
     const newPoll = {
       question,
       category,
@@ -55,6 +57,7 @@ const PollCreate = () => {
       votes: 0,
       trending: false,
       pollType,
+      visibilityPublic: visibility === 'public', // Sends true for 'public', false for 'private'
       options: options.map((text) => ({ text, votes: 0 })),
     };
 
@@ -68,7 +71,6 @@ const PollCreate = () => {
     setError('');
 
     try {
-      // CORRECTED: Using backticks and process.env for the API URL
       const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/polls`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -82,17 +84,17 @@ const PollCreate = () => {
 
       const data = await response.json();
       console.log('Poll created:', data);
-      navigate('/'); // Navigate to homepage on success
+      navigate('/');
     } catch (err) {
       console.error(err);
       setError(err.message);
     } finally {
-      setIsLoading(false); // Ensure loading is turned off
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto mt-10 px-4">
+    <div className="max-w-2xl mx-auto mt-10 px-4 mb-10">
       <h2 className="text-2xl font-bold mb-6">Create a New Poll</h2>
 
       {showToast && (
@@ -108,7 +110,8 @@ const PollCreate = () => {
       )}
 
       {!preview ? (
-        <form onSubmit={handleSubmit} className="space-y-4 bg-white shadow p-6 rounded">
+        <form onSubmit={handleSubmit} className="space-y-6 bg-white shadow p-6 rounded">
+          {/* Question Input */}
           <div>
             <label className="block mb-1 font-medium">Question</label>
             <input
@@ -120,6 +123,7 @@ const PollCreate = () => {
             />
           </div>
 
+          {/* Category Select */}
           <div>
             <label className="block mb-1 font-medium">Category</label>
             <select
@@ -130,13 +134,12 @@ const PollCreate = () => {
             >
               <option value="">Select a category</option>
               {CATEGORY_OPTIONS.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
+                <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
           </div>
 
+          {/* Tags Checkboxes */}
           <div>
             <label className="block mb-1 font-medium">Tags</label>
             <div className="flex flex-wrap gap-2">
@@ -162,6 +165,7 @@ const PollCreate = () => {
             </div>
           </div>
 
+          {/* Close Date */}
           <div>
             <label className="block mb-1 font-medium">Close Date (optional)</label>
             <input
@@ -169,10 +173,11 @@ const PollCreate = () => {
               className="w-full border px-4 py-2 rounded"
               value={closeDate}
               onChange={(e) => setCloseDate(e.target.value)}
-              min={new Date().toISOString().split("T")[0]} // Prevent selecting past dates
+              min={new Date().toISOString().split("T")[0]}
             />
           </div>
 
+          {/* Poll Type */}
           <div>
             <label className="block mb-1 font-medium">Poll Type</label>
             <select
@@ -184,7 +189,37 @@ const PollCreate = () => {
               <option value="multiple">Multiple Choice (Checkbox)</option>
             </select>
           </div>
+          
+          {/* Visibility Section */}
+          <div>
+            <label className="block mb-2 font-medium">Visibility</label>
+            <div className="flex gap-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="visibility"
+                  value="public"
+                  checked={visibility === 'public'}
+                  onChange={(e) => setVisibility(e.target.value)}
+                  className="mr-2"
+                />
+                Public (Visible to everyone)
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="visibility"
+                  value="private"
+                  checked={visibility === 'private'}
+                  onChange={(e) => setVisibility(e.target.value)}
+                  className="mr-2"
+                />
+                Private (Only via direct link)
+              </label>
+            </div>
+          </div>
 
+          {/* Options */}
           <div>
             <label className="block mb-1 font-medium">Options</label>
             {options.map((option, index) => (
@@ -230,6 +265,8 @@ const PollCreate = () => {
             <p><strong>Category:</strong> {preview.category}</p>
             <p><strong>Tags:</strong> {preview.tags.join(', ') || 'None'}</p>
             <p><strong>Type:</strong> {preview.pollType === 'single' ? 'Single Choice' : 'Multiple Choice'}</p>
+            {/* CORRECTED: This now reads the correct boolean field for the preview */}
+            <p><strong>Visibility:</strong> {preview.visibilityPublic ? 'Public' : 'Private'}</p>
             {preview.closeDate && (
               <p><strong>Closes on:</strong> {new Date(preview.closeDate).toLocaleDateString()}</p>
             )}
