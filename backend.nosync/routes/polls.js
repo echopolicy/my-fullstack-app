@@ -55,7 +55,8 @@ router.get('/', async (req, res) => {
     const where = {
       [Op.or]: [
         { closeDate: null },
-        { closeDate: { [Op.gt]: new Date() } } // closeDate greater than now
+        { closeDate: { [Op.gt]: new Date() } }, // closeDate greater than now
+        { visibilityPublic: true}
       ]
     };
 

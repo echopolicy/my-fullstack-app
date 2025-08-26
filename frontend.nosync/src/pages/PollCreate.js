@@ -84,7 +84,9 @@ const PollCreate = () => {
 
       const data = await response.json();
       console.log('Poll created:', data);
-      navigate('/');
+          // Navigate to the new poll's page
+      navigate(`/polls/${data.id}`);
+
     } catch (err) {
       console.error(err);
       setError(err.message);
