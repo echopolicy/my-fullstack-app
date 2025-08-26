@@ -53,13 +53,12 @@ router.get('/', async (req, res) => {
   const { category } = req.query;
   try {
     const where = {
+      visibilityPublic: true,
       [Op.or]: [
         { closeDate: null },
-        { closeDate: { [Op.gt]: new Date() } }, // closeDate greater than now
-        { visibilityPublic: true}
+        { closeDate: { [Op.gt]: new Date() } }
       ]
     };
-
     if (category) {
       where.category = category;
     }
