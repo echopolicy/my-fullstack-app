@@ -91,10 +91,23 @@ For deploying the code, you can explore free options. For the purpose of this pr
 ### Backend (APIs)
 1. A lightweight VPS hosting from Hostinger or any hosting provider that gives you root access to the server will do. 
 2. For easy installation, you can install an open source Panel like easyPanel. This is mostly point and click without the need for logging into the server
-3. Once you deploy your code, make sure your API's are listening to the correct port and the path is right in the env file of your frontend. We used https://api.echopolicy.com/api.
+3. Once you deploy your code, make sure your API's are listening to the correct port and the path is right in the env file of your frontend.
 4. Make sure you in your domain hosting you have an A record with api created, pointing to the server IP address of your hosting. 
 
 To debug your deployment a step-by-step approach will be 
 1. Deploy Frontend (API's pointing to local server and local db) and test
 2. Deploy Supbase (backend pointing to Supabase) and test
 3. Deploy Backend and test
+
+## Contributing
+
+If you would like to contribute to this project, please fork the repository and submit a pull request. Features to be developed include:
+1. Logins
+2. Captcha before voting for public vote
+3. Admin Panel
+4. History for poll creators
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](https://opensource.org/license/mit) file for details.
+
