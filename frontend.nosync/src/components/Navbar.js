@@ -29,6 +29,7 @@ const Navbar = () => {
           <Link to="/polls" className="hover:text-[#3B82F6]">Polls</Link>
           <Link to="/about" className="hover:text-[#F97316]">About</Link>
           <Link to="/admin/create" className="hover:text-[#22C55E]">Create Polls</Link>
+          <Link to="/login" className="hover:text-[#2253c5]">Login</Link>
           <a href="https://github.com/echopolicy" className="hover:text-[#3B82F6]">GitHub</a>
         </div>
       </div>

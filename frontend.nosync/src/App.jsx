@@ -10,6 +10,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Terms from "./pages/Terms";
 import PrivacyPolicy from "./pages/PrivacyPolicy";  
+import Login from './pages/Login';
 
 function App() {
   return (
@@ -23,7 +24,8 @@ function App() {
             <Route path="/polls/:id" element={<PollDetail />} />
             <Route path="/results/:id" element={<PollResults />} />
             <Route path="/admin/create" element={<PollCreate />} />
-             <Route path="/create" element={<PollCreate />} />
+            <Route path="/create" element={<PollCreate />} />
+            <Route path="/login" element={<Login/>}/>
             <Route path="/about" element={<About />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />

@@ -4,9 +4,11 @@ const express = require('express');
 const cors = require('cors');
 const sequelize = require('./config/database');
 const pollsRouter = require('./routes/polls');
+const usersRouter = require('./routes/users');
 
 // ✅ Import the model so Sequelize knows about it
 require('./models/Poll'); 
+require('./models/User'); 
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -17,6 +19,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/polls', pollsRouter);
+app.use('/api/users', usersRouter); 
 
 // Root route
 app.get('/', (req, res) => {
