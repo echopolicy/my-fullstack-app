@@ -11,6 +11,7 @@ import Footer from './components/Footer';
 import Terms from "./pages/Terms";
 import PrivacyPolicy from "./pages/PrivacyPolicy";  
 import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
@@ -29,7 +30,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
-            
+            <Route path ="/dashboard" element={<Dashboard/>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

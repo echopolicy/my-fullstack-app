@@ -102,10 +102,12 @@ To debug your deployment a step-by-step approach will be
 ## Contributing
 
 If you would like to contribute to this project, please fork the repository and submit a pull request. Features to be developed include:
-1. Logins
+1. Logins (Work In Progress)
+1.a Link poll with user
 2. Captcha before voting for public vote
 3. Admin Panel
 4. History for poll creators
+5. Forums to discuss Polls
 
 ## License
 

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
@@ -10,11 +11,12 @@ export default function Login() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const navigate = useNavigate();
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,8 +24,8 @@ export default function Login() {
     setSuccess("");
 
     const url = isLogin
-        ? `${API_BASE_URL}/users/login`
-        : `${API_BASE_URL}/users/signup`;
+      ? `${API_BASE_URL}/users/login`
+      : `${API_BASE_URL}/users/signup`;
 
     try {
       const response = await fetch(url, {
@@ -37,14 +39,17 @@ export default function Login() {
       if (!response.ok) {
         setError(data.message || "Something went wrong");
       } else {
-        setSuccess(data.message);
         if (isLogin) {
-          // Save token in localStorage
+          // Save token & user in localStorage
           localStorage.setItem("token", data.token);
           localStorage.setItem("user", JSON.stringify(data.user));
+          setSuccess("Login successful!");
+          // Redirect to My Polls or Home
+          navigate("/dashboard");
         } else {
-          // Clear form after successful signup
+          setSuccess("Signup successful! Please log in.");
           setFormData({ fullName: "", email: "", password: "" });
+          setIsLogin(true); // switch back to login tab
         }
       }
     } catch (err) {
@@ -83,7 +88,9 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
             <div>
-              <label className="block text-sm font-medium mb-1">Full Name</label>
+              <label className="block text-sm font-medium mb-1">
+                Full Name
+              </label>
               <input
                 type="text"
                 name="fullName"
@@ -126,6 +133,25 @@ export default function Login() {
             {isLogin ? "Login" : "Sign Up"}
           </button>
         </form>
+
+        <div className="mt-3 text-left text-xs leading-normal text-gray-500">
+          By continuing to use our services, you acknowledge that you have both
+          read and agree to our{" "}
+          <a
+            href="/terms"
+            className="font-medium underline underline-offset-2 hover:text-black"
+          >
+            Terms of Service
+          </a>{" "}
+          and{" "}
+          <a
+            href="/privacy"
+            className="font-medium underline underline-offset-2 hover:text-black"
+          >
+            Privacy Policy
+          </a>
+          .
+        </div>
       </div>
     </div>
   );
