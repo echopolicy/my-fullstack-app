@@ -1,0 +1,210 @@
+/* Dropdown container */
+.dropdown {
+  @apply absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg border flex flex-col;
+}
+
+/* Dropdown items */
+.dropdown a,
+.dropdown button {
+  @apply block w-full px-4 py-2 text-left hover:bg-gray-100;
+}
+
+
+/* Navbar container */
+.navbar {
+  @apply bg-white text-[#1E3A5F] px-6 py-1 sticky top-0 z-50 transition-shadow duration-300 shadow;
+}
+
+.navbar.scrolled {
+  @apply shadow-lg;
+}
+
+/* Inner container */
+.navbar-container {
+  @apply container mx-auto flex justify-between items-center;
+}
+
+/* Logo */
+.navbar-logo {
+  @apply flex items-center space-x-2;
+}
+
+.navbar-logo img {
+  @apply h-24 w-auto;
+}
+
+.navbar-logo span {
+  @apply text-xl font-bold;
+}
+
+/* Links container (desktop) */
+.navbar-links {
+  @apply hidden md:flex items-center space-x-4;
+}
+
+/* Mobile menu button */
+.menu-button {
+  @apply md:hidden text-2xl cursor-pointer;
+}
+
+/* Mobile menu dropdown */
+.mobile-menu {
+  @apply md:hidden flex flex-col space-y-2 mt-4 bg-white shadow-lg p-4 rounded-lg;
+}
+
+.mobile-menu a,
+.mobile-menu button {
+  @apply block px-4 py-2 rounded hover:bg-gray-100;
+}
+
+
+/* Tooltip container */
+.tooltip {
+  @apply relative inline-block;
+}
+
+/* Tooltip text */
+.tooltip-text {
+  @apply absolute hidden bg-gray-700 text-white text-xs rounded py-1 px-2 whitespace-nowrap;
+  @apply -top-8 left-1/2 -translate-x-1/2;
+}
+
+/* Show tooltip on hover */
+.tooltip:hover .tooltip-text {
+  @apply block;
+}
+
+
+/* General Layout & Container Styles */
+.poll-container {
+  @apply max-w-2xl mx-auto mt-10 px-4 mb-10;
+}
+
+.poll-header {
+  @apply text-2xl font-bold mb-6;
+}
+
+/* Form Styles */
+.poll-form {
+  @apply space-y-6 bg-white shadow p-6 rounded;
+}
+
+.form-label {
+  @apply block mb-1 font-medium;
+}
+
+.form-input {
+  @apply w-full border px-4 py-2 rounded;
+}
+
+/* Tag Specific Styles */
+.tag-group {
+  @apply flex flex-wrap gap-2;
+}
+
+.tag-label {
+  @apply border rounded-full px-3 py-1 text-sm cursor-pointer;
+}
+
+.tag-label-active {
+  @apply bg-blue-600 text-white;
+}
+
+.tag-label-inactive {
+  @apply bg-gray-100 text-gray-700;
+}
+
+.tag-checkbox-hidden {
+  @apply hidden;
+}
+
+/* Option Input Styles */
+.option-group {
+  @apply flex items-center gap-2 mb-2;
+}
+
+.option-input {
+  @apply flex-1 border px-4 py-2 rounded;
+}
+
+
+/* Button Styles */
+.btn {
+  @apply px-4 py-2 rounded transition disabled:cursor-not-allowed;
+}
+
+.btn-primary {
+  @apply btn bg-blue-600 text-white hover:bg-blue-700 w-full sm:w-auto;
+}
+
+.btn-success {
+  @apply btn bg-green-600 text-white hover:bg-green-700;
+}
+.btn-success:disabled {
+  @apply bg-green-300;
+}
+
+.btn-secondary {
+  @apply btn bg-gray-300 hover:bg-gray-400;
+}
+.btn-secondary:disabled {
+    @apply bg-gray-200;
+}
+
+.btn-remove {
+  @apply text-red-500 hover:text-red-700 text-sm;
+}
+
+.btn-add-option {
+  @apply text-blue-600 hover:underline text-sm mt-1;
+}
+
+
+/* Preview Section Styles */
+.preview-container {
+  @apply bg-white shadow p-6 rounded mt-6;
+}
+
+.preview-title {
+  @apply text-xl font-bold mb-4;
+}
+
+.preview-details {
+  @apply space-y-2 text-sm text-gray-600 mb-4;
+}
+
+.preview-list {
+  @apply list-disc list-inside mb-6 space-y-1;
+}
+
+.preview-btn-group {
+    @apply flex gap-4;
+}
+
+/* Notification & Error Styles */
+.toast-notification {
+  @apply fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded shadow-lg z-50;
+}
+
+.error-box {
+  @apply bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4;
+}
+
+/* Tooltip Styles */
+.tooltip {
+  @apply relative inline-block;
+}
+
+.tooltip-icon {
+  @apply h-5 w-5 text-gray-500 cursor-pointer;
+}
+
+.tooltip .tooltip-text {
+  @apply invisible w-52 bg-gray-700 text-white text-center rounded-md p-2;
+  @apply absolute z-10 bottom-full left-1/2 opacity-0 transition-opacity;
+  transform: translateX(-50%);
+}
+
+.tooltip:hover .tooltip-text {
+  @apply visible opacity-100;
+}

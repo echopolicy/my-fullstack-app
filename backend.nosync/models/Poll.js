@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes, INTEGER } = require('sequelize');
 const sequelize = require('../config/database');
 
 const Poll = sequelize.define('Poll', {
@@ -42,6 +42,9 @@ const Poll = sequelize.define('Poll', {
   trending: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
+  },
+  user_id: {
+    type:INTEGER
   },
   createdAt: {
     type: DataTypes.DATE,

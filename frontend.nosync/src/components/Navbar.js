@@ -1,10 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import "../App.css"; 
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,7 +17,6 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Check if token exists in localStorage
   useEffect(() => {
     const token = localStorage.getItem("token");
     setIsLoggedIn(!!token);
@@ -26,83 +27,89 @@ const Navbar = () => {
     localStorage.removeItem("user");
     setIsLoggedIn(false);
     setMenuOpen(false);
+    setMobileOpen(false);
     navigate("/");
   };
 
   return (
-    <nav
-      className={`bg-white text-[#1E3A5F] px-6 py-1 sticky top-0 z-50 transition-shadow duration-300 ${
-        scrolled ? "shadow-lg" : "shadow"
-      }`}
-    >
-      <div className="container mx-auto flex justify-between items-center">
+    <nav className={`navbar ${scrolled ? "scrolled" : ""}`}>
+      <div className="navbar-container">
         {/* Logo */}
-        <Link to="/" className="flex items-center space-x-2">
-          <img src="/logoEP.png" alt="EchoPolicy Logo" className="h-24 w-auto" />
-          <span className="text-xl font-bold">EchoPolicy</span>
+        <Link to="/" className="navbar-logo">
+          <img src="/logoEP.png" alt="EchoPolicy Logo" />
+          <span>EchoPolicy</span>
         </Link>
 
-        {/* Links */}
-        <div className="space-x-4 flex items-center">
-          <Link to="/polls" className="hover:text-[#3B82F6]">
-            Polls
-          </Link>
-          <Link to="/about" className="hover:text-[#F97316]">
-            About
-          </Link>
+        {/* Desktop Links */}
+        <div className="navbar-links">
+          <Link to="/polls">All Polls</Link>
+          <Link to="/create">New Poll</Link>
+          <Link to="/about" className="text-[#F97316]">About</Link>
 
           {isLoggedIn ? (
             <div className="relative">
-              {/* Account Button */}
               <button
                 onClick={() => setMenuOpen((prev) => !prev)}
-                className="hover:text-[#2253c5] font-medium"
+                className="font-medium"
               >
                 Account ▾
               </button>
-
-              {/* Dropdown */}
-              {menuOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg border">
-                  <Link
-                    to="/admin/create"
-                    className="block px-4 py-2 hover:bg-gray-100"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    New Poll
-                  </Link>
-                  <Link
-                    to="/dashboard"
-                    className="block px-4 py-2 hover:bg-gray-100"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Your Polls
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
+                {menuOpen && (
+                  <div className="dropdown">
+                    <Link to="/admin/create" onClick={() => setMenuOpen(false)}>
+                      New Poll
+                    </Link>
+                    <Link to="/dashboard" onClick={() => setMenuOpen(false)}>
+                      Your Polls
+                    </Link>
+                    <button onClick={handleLogout} className="text-red-500">
+                      Logout
+                    </button>
+                  </div>
+                )}
             </div>
           ) : (
-            <Link to="/login" className="hover:text-[#2253c5]">
-              Login
-            </Link>
+            <Link to="/login">Login</Link>
+          )}
+
+          <a href="https://github.com/echopolicy" target="_blank" rel="noopener noreferrer">
+            GitHub
+          </a>
+        </div>
+
+        {/* Mobile Menu Button */}
+        <button className="menu-button" onClick={() => setMobileOpen(!mobileOpen)}>
+          ☰
+        </button>
+      </div>
+
+      {/* Mobile Links */}
+      {mobileOpen && (
+        <div className="mobile-menu">
+          <Link to="/polls" onClick={() => setMobileOpen(false)}>All Polls</Link>
+          <Link to="/create" onClick={() => setMobileOpen(false)}>New Poll</Link>
+          <Link to="/about" onClick={() => setMobileOpen(false)}>About</Link>
+
+          {isLoggedIn ? (
+            <>
+              <Link to="/admin/create" onClick={() => setMobileOpen(false)}>New Poll</Link>
+              <Link to="/dashboard" onClick={() => setMobileOpen(false)}>Your Polls</Link>
+              <button onClick={handleLogout} className="text-red-500">Logout</button>
+            </>
+          ) : (
+            <Link to="/login" onClick={() => setMobileOpen(false)}>Login</Link>
           )}
 
           <a
             href="https://github.com/echopolicy"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-[#3B82F6]"
+            onClick={() => setMobileOpen(false)}
           >
             GitHub
           </a>
         </div>
-      </div>
+      )}
     </nav>
   );
 };

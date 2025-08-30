@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../App.css';
 
 const CATEGORY_OPTIONS = ['Workplace', 'Tech', 'Politics', 'Education', 'Health'];
 const TAG_OPTIONS = ['New Trends', 'Survey', 'Feedback', 'Fun'];
@@ -10,7 +11,7 @@ const PollCreate = () => {
   const [tags, setTags] = useState([]);
   const [closeDate, setCloseDate] = useState('');
   const [pollType, setPollType] = useState('single');
-  const [visibility, setVisibility] = useState('public'); // State remains 'public' or 'private' for the radio buttons
+  const [visibility, setVisibility] = useState('public');
   const [options, setOptions] = useState(['', '']);
   const [showToast, setShowToast] = useState(false);
   const [preview, setPreview] = useState(null);
@@ -18,14 +19,17 @@ const PollCreate = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  // handle option edits
   const handleOptionChange = (index, value) => {
-    const updatedOptions = [...options];
-    updatedOptions[index] = value;
-    setOptions(updatedOptions);
+    const updated = [...options];
+    updated[index] = value;
+    setOptions(updated);
   };
 
   const addOption = () => {
-    setOptions([...options, '']);
+    if (options.length < 5) {
+      setOptions([...options, '']);
+    }
   };
 
   const removeOption = (index) => {
@@ -34,20 +38,21 @@ const PollCreate = () => {
     }
   };
 
+  // toggle tags
   const handleTagChange = (e) => {
     const value = e.target.value;
-    setTags((prevTags) =>
-      prevTags.includes(value)
-        ? prevTags.filter((tag) => tag !== value)
-        : [...prevTags, value]
+    setTags((prev) =>
+      prev.includes(value)
+        ? prev.filter((tag) => tag !== value)
+        : [...prev, value]
     );
   };
 
+  // preview before making poll live
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
 
-    //Fixed Bug to include visibility
     const newPoll = {
       question,
       category,
@@ -57,7 +62,7 @@ const PollCreate = () => {
       votes: 0,
       trending: false,
       pollType,
-      visibilityPublic: visibility === 'public', // Sends true for 'public', false for 'private'
+      visibilityPublic: visibility === 'public',
       options: options.map((text) => ({ text, votes: 0 })),
     };
 
@@ -66,16 +71,30 @@ const PollCreate = () => {
     setTimeout(() => setShowToast(false), 3000);
   };
 
+  // actually save poll
   const handleMakeLive = async () => {
+    if (!preview) return;
     setIsLoading(true);
     setError('');
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/polls`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(preview),
-      });
+      const storedUser = localStorage.getItem("user");
+      const user = storedUser ? JSON.parse(storedUser) : null;
+
+      // send userId if logged in
+      const pollToSubmit = {
+        ...preview,
+        user_id: user ? user.id : null,
+      };
+
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/polls`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(pollToSubmit),
+        }
+      );
 
       if (!response.ok) {
         const errData = await response.json();
@@ -84,9 +103,8 @@ const PollCreate = () => {
 
       const data = await response.json();
       console.log('Poll created:', data);
-          // Navigate to the new poll's page
-      navigate(`/polls/${data.id}`);
 
+      navigate(`/polls/${data.id}`);
     } catch (err) {
       console.error(err);
       setError(err.message);
@@ -96,62 +114,58 @@ const PollCreate = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto mt-10 px-4 mb-10">
-      <h2 className="text-2xl font-bold mb-6">Create a New Poll</h2>
+    <div className="poll-container">
+      <h2 className="poll-header">Create a New Poll</h2>
 
       {showToast && (
-        <div className="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded shadow-lg z-50">
-          ✅ Poll created! Preview below.
-        </div>
+        <div className="toast-notification">✅ Poll created! Preview below.</div>
       )}
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          ❌ {error}
-        </div>
-      )}
+      {error && <div className="error-box">❌ {error}</div>}
 
       {!preview ? (
-        <form onSubmit={handleSubmit} className="space-y-6 bg-white shadow p-6 rounded">
-          {/* Question Input */}
+        <form onSubmit={handleSubmit} className="poll-form">
+          {/* Question */}
           <div>
-            <label className="block mb-1 font-medium">Question</label>
+            <label className="form-label">Question</label>
             <input
               type="text"
-              className="w-full border px-4 py-2 rounded"
+              className="form-input"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               required
             />
           </div>
 
-          {/* Category Select */}
+          {/* Category */}
           <div>
-            <label className="block mb-1 font-medium">Category</label>
+            <label className="form-label">Category</label>
             <select
-              className="w-full border px-4 py-2 rounded"
+              className="form-input"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               required
             >
               <option value="">Select a category</option>
               {CATEGORY_OPTIONS.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
               ))}
             </select>
           </div>
 
-          {/* Tags Checkboxes */}
+          {/* Tags */}
           <div>
-            <label className="block mb-1 font-medium">Tags</label>
-            <div className="flex flex-wrap gap-2">
+            <label className="form-label">Tags</label>
+            <div className="tag-group">
               {TAG_OPTIONS.map((tag) => (
                 <label
                   key={tag}
-                  className={`border rounded-full px-3 py-1 text-sm cursor-pointer ${
+                  className={`tag-label ${
                     tags.includes(tag)
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700'
+                      ? 'tag-label-active'
+                      : 'tag-label-inactive'
                   }`}
                 >
                   <input
@@ -159,7 +173,7 @@ const PollCreate = () => {
                     value={tag}
                     onChange={handleTagChange}
                     checked={tags.includes(tag)}
-                    className="hidden"
+                    className="tag-checkbox-hidden"
                   />
                   {tag}
                 </label>
@@ -169,10 +183,10 @@ const PollCreate = () => {
 
           {/* Close Date */}
           <div>
-            <label className="block mb-1 font-medium">Close Date (optional)</label>
+            <label className="form-label">Close Date (optional)</label>
             <input
               type="date"
-              className="w-full border px-4 py-2 rounded"
+              className="form-input"
               value={closeDate}
               onChange={(e) => setCloseDate(e.target.value)}
               min={new Date().toISOString().split("T")[0]}
@@ -181,22 +195,22 @@ const PollCreate = () => {
 
           {/* Poll Type */}
           <div>
-            <label className="block mb-1 font-medium">Poll Type</label>
+            <label className="form-label">Poll Type</label>
             <select
               value={pollType}
               onChange={(e) => setPollType(e.target.value)}
-              className="w-full border px-4 py-2 rounded"
+              className="form-input"
             >
-              <option value="single">Single Choice (Radio)</option>
-              <option value="multiple">Multiple Choice (Checkbox)</option>
+              <option value="single">Single Choice</option>
+              <option value="multiple">Multiple Choice</option>
             </select>
           </div>
-          
-          {/* Visibility Section */}
+
+          {/* Visibility */}
           <div>
-            <label className="block mb-2 font-medium">Visibility</label>
-            <div className="flex gap-4">
-              <label className="flex items-center">
+            <label className="form-label mb-2">Visibility</label>
+            <div className="flex flex-col gap-3">
+              <label className="flex items-center gap-2">
                 <input
                   type="radio"
                   name="visibility"
@@ -205,9 +219,9 @@ const PollCreate = () => {
                   onChange={(e) => setVisibility(e.target.value)}
                   className="mr-2"
                 />
-                Public (Visible to everyone)
+                <span>Public</span>
               </label>
-              <label className="flex items-center">
+              <label className="flex items-center gap-2">
                 <input
                   type="radio"
                   name="visibility"
@@ -216,80 +230,91 @@ const PollCreate = () => {
                   onChange={(e) => setVisibility(e.target.value)}
                   className="mr-2"
                 />
-                Private (Only via direct link)
+                <span>Private</span>
               </label>
             </div>
           </div>
 
           {/* Options */}
           <div>
-            <label className="block mb-1 font-medium">Options</label>
-            {options.map((option, index) => (
-              <div key={index} className="flex items-center gap-2 mb-2">
+            <label className="form-label">Options</label>
+            {options.map((opt, index) => (
+              <div key={index} className="option-group">
                 <input
                   type="text"
-                  value={option}
+                  value={opt}
                   onChange={(e) => handleOptionChange(index, e.target.value)}
-                  className="flex-1 border px-4 py-2 rounded"
+                  className="option-input"
                   required
                 />
                 {options.length > 2 && (
                   <button
                     type="button"
                     onClick={() => removeOption(index)}
-                    className="text-red-500 hover:text-red-700 text-sm"
+                    className="btn-remove"
                   >
                     Remove
                   </button>
                 )}
               </div>
             ))}
-            <button
-              type="button"
-              onClick={addOption}
-              className="text-blue-600 hover:underline text-sm mt-1"
-            >
-              + Add another option
-            </button>
+            {options.length < 5 && (
+              <button
+                type="button"
+                onClick={addOption}
+                className="btn-add-option"
+              >
+                + Add another option
+              </button>
+            )}
           </div>
 
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition w-full sm:w-auto"
-          >
+          <button type="submit" className="btn-primary">
             Preview Poll
           </button>
         </form>
       ) : (
-        <div className="bg-white shadow p-6 rounded mt-6">
-          <h3 className="text-xl font-bold mb-4">{preview.question}</h3>
-          <div className="space-y-2 text-sm text-gray-600 mb-4">
-            <p><strong>Category:</strong> {preview.category}</p>
-            <p><strong>Tags:</strong> {preview.tags.join(', ') || 'None'}</p>
-            <p><strong>Type:</strong> {preview.pollType === 'single' ? 'Single Choice' : 'Multiple Choice'}</p>
-            {/* CORRECTED: This now reads the correct boolean field for the preview */}
-            <p><strong>Visibility:</strong> {preview.visibilityPublic ? 'Public' : 'Private'}</p>
+        <div className="preview-container">
+          <h3 className="preview-title">{preview.question}</h3>
+          <div className="preview-details">
+            <p>
+              <strong>Category:</strong> {preview.category}
+            </p>
+            <p>
+              <strong>Tags:</strong> {preview.tags.join(', ') || 'None'}
+            </p>
+            <p>
+              <strong>Type:</strong>{' '}
+              {preview.pollType === 'single' ? 'Single Choice' : 'Multiple Choice'}
+            </p>
+            <p>
+              <strong>Visibility:</strong>{' '}
+              {preview.visibilityPublic ? 'Public' : 'Private'}
+            </p>
             {preview.closeDate && (
-              <p><strong>Closes on:</strong> {new Date(preview.closeDate).toLocaleDateString()}</p>
+              <p>
+                <strong>Closes on:</strong>{' '}
+                {new Date(preview.closeDate).toLocaleDateString()}
+              </p>
             )}
           </div>
-          <ul className="list-disc list-inside mb-6 space-y-1">
+          <ul className="preview-list">
             {preview.options.map((opt, i) => (
               <li key={i}>{opt.text}</li>
             ))}
           </ul>
-          
-          <div className="flex gap-4">
+
+          <div className="preview-btn-group">
             <button
               onClick={handleMakeLive}
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:bg-green-300 disabled:cursor-not-allowed"
+              className="btn-success"
               disabled={isLoading}
             >
               {isLoading ? 'Submitting...' : '✅ Make It Live'}
             </button>
             <button
               onClick={() => setPreview(null)}
-              className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 disabled:bg-gray-200 disabled:cursor-not-allowed"
+              className="btn-secondary"
               disabled={isLoading}
             >
               ✏️ Edit
