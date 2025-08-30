@@ -143,6 +143,19 @@ const Dashboard = () => {
                   >
                     View / Vote
                   </button>
+                  <button
+                      onClick={() => navigate(`/admin/edit/${poll.id || poll._id}`)}
+                      disabled={poll.votes.reduce((a, b) => a + b, 0) > 0}
+                      className={`px-4 py-2 rounded w-full text-center transition ${
+                        poll.votes.reduce((a, b) => a + b, 0) === 0
+                          ? 'bg-yellow-500 text-white hover:bg-yellow-600'
+                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      }`}
+                    >
+                      Edit Poll
+                  </button>
+
+
                   <div className="flex items-center flex-wrap gap-3 mt-4 pt-3 border-t">
                     <span className="text-sm font-medium text-gray-600">Share:</span>
                     <TwitterShareButton url={shareUrl} title={pollQuestion}><TwitterIcon size={32} round /></TwitterShareButton>

@@ -12,6 +12,7 @@ import Terms from "./pages/Terms";
 import PrivacyPolicy from "./pages/PrivacyPolicy";  
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import PollEdit from './pages/PollEdit'
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path ="/dashboard" element={<Dashboard/>} />
             <Route path="*" element={<NotFound />} />
+            <Route path="admin/edit/:id" element={<PollEdit />} />
           </Routes>
         </main>
         <Footer />
