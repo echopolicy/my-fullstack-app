@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";   // ✅ import context
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
@@ -13,6 +14,7 @@ export default function Login() {
 
   const navigate = useNavigate();
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+  const { login } = useAuth();  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -40,16 +42,14 @@ export default function Login() {
         setError(data.message || "Something went wrong");
       } else {
         if (isLogin) {
-          // Save token & user in localStorage
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("user", JSON.stringify(data.user));
+          // ✅ use AuthContext instead of raw localStorage
+          login(data.token, data.user);
           setSuccess("Login successful!");
-          // Redirect to My Polls or Home
           navigate("/dashboard");
         } else {
           setSuccess("Signup successful! Please log in.");
           setFormData({ fullName: "", email: "", password: "" });
-          setIsLogin(true); // switch back to login tab
+          setIsLogin(true);
         }
       }
     } catch (err) {
@@ -133,25 +133,6 @@ export default function Login() {
             {isLogin ? "Login" : "Sign Up"}
           </button>
         </form>
-
-        <div className="mt-3 text-left text-xs leading-normal text-gray-500">
-          By continuing to use our services, you acknowledge that you have both
-          read and agree to our{" "}
-          <a
-            href="/terms"
-            className="font-medium underline underline-offset-2 hover:text-black"
-          >
-            Terms of Service
-          </a>{" "}
-          and{" "}
-          <a
-            href="/privacy"
-            className="font-medium underline underline-offset-2 hover:text-black"
-          >
-            Privacy Policy
-          </a>
-          .
-        </div>
       </div>
     </div>
   );

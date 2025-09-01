@@ -1,22 +1,25 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../App.css';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import "../App.css";
 
-const CATEGORY_OPTIONS = ['Workplace', 'Tech', 'Politics', 'Education', 'Health'];
-const TAG_OPTIONS = ['New Trends', 'Survey', 'Feedback', 'Fun'];
+const CATEGORY_OPTIONS = ["Workplace", "Tech", "Politics", "Education", "Health"];
+const TAG_OPTIONS = ["New Trends", "Survey", "Feedback", "Fun"];
 
 const PollCreate = () => {
-  const [question, setQuestion] = useState('');
-  const [category, setCategory] = useState('');
+  const { isLoggedIn, user, token: ctxToken } = useAuth(); // <- token optional in context
+  const [question, setQuestion] = useState("");
+  const [category, setCategory] = useState("");
   const [tags, setTags] = useState([]);
-  const [closeDate, setCloseDate] = useState('');
-  const [pollType, setPollType] = useState('single');
-  const [visibility, setVisibility] = useState('public');
-  const [options, setOptions] = useState(['', '']);
+  const [closeDate, setCloseDate] = useState("");
+  const [pollType, setPollType] = useState("single");
+  const [visibility, setVisibility] = useState("public");
+  const [options, setOptions] = useState(["", ""]);
   const [showToast, setShowToast] = useState(false);
   const [preview, setPreview] = useState(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
 
   // handle option edits
@@ -27,31 +30,25 @@ const PollCreate = () => {
   };
 
   const addOption = () => {
-    if (options.length < 5) {
-      setOptions([...options, '']);
-    }
+    if (options.length < 5) setOptions([...options, ""]);
   };
 
   const removeOption = (index) => {
-    if (options.length > 2) {
-      setOptions(options.filter((_, i) => i !== index));
-    }
+    if (options.length > 2) setOptions(options.filter((_, i) => i !== index));
   };
 
   // toggle tags
   const handleTagChange = (e) => {
     const value = e.target.value;
     setTags((prev) =>
-      prev.includes(value)
-        ? prev.filter((tag) => tag !== value)
-        : [...prev, value]
+      prev.includes(value) ? prev.filter((tag) => tag !== value) : [...prev, value]
     );
   };
 
   // preview before making poll live
   const handleSubmit = (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     const newPoll = {
       question,
@@ -59,10 +56,10 @@ const PollCreate = () => {
       tags,
       closeDate: closeDate || null,
       createdAt: new Date().toISOString(),
-      votes: 0,
+      votes: 0, // keep as your backend expects; dashboard handles array/number
       trending: false,
       pollType,
-      visibilityPublic: visibility === 'public',
+      visibilityPublic: visibility === "public",
       options: options.map((text) => ({ text, votes: 0 })),
     };
 
@@ -75,36 +72,33 @@ const PollCreate = () => {
   const handleMakeLive = async () => {
     if (!preview) return;
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const storedUser = localStorage.getItem("user");
-      const user = storedUser ? JSON.parse(storedUser) : null;
-
-      // send userId if logged in
+      // Build body: only include user_id if logged in
       const pollToSubmit = {
         ...preview,
-        user_id: user ? user.id : null,
+        ...(isLoggedIn && user ? { user_id: user.id || user._id } : {}),
       };
 
-      const response = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/polls`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(pollToSubmit),
-        }
-      );
+      // Build headers: include Authorization only if we have a token
+      const token = ctxToken || localStorage.getItem("token");
+      const headers = { "Content-Type": "application/json" };
+      if (isLoggedIn && token) headers.Authorization = `Bearer ${token}`;
+
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/polls`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(pollToSubmit),
+      });
 
       if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error || 'Failed to make the poll live.');
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || "Failed to make the poll live.");
       }
 
       const data = await response.json();
-      console.log('Poll created:', data);
-
-      navigate(`/polls/${data.id}`);
+      navigate(`/polls/${data.id || data._id}`);
     } catch (err) {
       console.error(err);
       setError(err.message);
@@ -117,10 +111,7 @@ const PollCreate = () => {
     <div className="poll-container">
       <h2 className="poll-header">Create a New Poll</h2>
 
-      {showToast && (
-        <div className="toast-notification">✅ Poll created! Preview below.</div>
-      )}
-
+      {showToast && <div className="toast-notification">✅ Poll created! Preview below.</div>}
       {error && <div className="error-box">❌ {error}</div>}
 
       {!preview ? (
@@ -162,11 +153,7 @@ const PollCreate = () => {
               {TAG_OPTIONS.map((tag) => (
                 <label
                   key={tag}
-                  className={`tag-label ${
-                    tags.includes(tag)
-                      ? 'tag-label-active'
-                      : 'tag-label-inactive'
-                  }`}
+                  className={`tag-label ${tags.includes(tag) ? "tag-label-active" : "tag-label-inactive"}`}
                 >
                   <input
                     type="checkbox"
@@ -215,7 +202,7 @@ const PollCreate = () => {
                   type="radio"
                   name="visibility"
                   value="public"
-                  checked={visibility === 'public'}
+                  checked={visibility === "public"}
                   onChange={(e) => setVisibility(e.target.value)}
                   className="mr-2"
                 />
@@ -226,7 +213,7 @@ const PollCreate = () => {
                   type="radio"
                   name="visibility"
                   value="private"
-                  checked={visibility === 'private'}
+                  checked={visibility === "private"}
                   onChange={(e) => setVisibility(e.target.value)}
                   className="mr-2"
                 />
@@ -248,22 +235,14 @@ const PollCreate = () => {
                   required
                 />
                 {options.length > 2 && (
-                  <button
-                    type="button"
-                    onClick={() => removeOption(index)}
-                    className="btn-remove"
-                  >
+                  <button type="button" onClick={() => removeOption(index)} className="btn-remove">
                     Remove
                   </button>
                 )}
               </div>
             ))}
             {options.length < 5 && (
-              <button
-                type="button"
-                onClick={addOption}
-                className="btn-add-option"
-              >
+              <button type="button" onClick={addOption} className="btn-add-option">
                 + Add another option
               </button>
             )}
@@ -277,25 +256,12 @@ const PollCreate = () => {
         <div className="preview-container">
           <h3 className="preview-title">{preview.question}</h3>
           <div className="preview-details">
-            <p>
-              <strong>Category:</strong> {preview.category}
-            </p>
-            <p>
-              <strong>Tags:</strong> {preview.tags.join(', ') || 'None'}
-            </p>
-            <p>
-              <strong>Type:</strong>{' '}
-              {preview.pollType === 'single' ? 'Single Choice' : 'Multiple Choice'}
-            </p>
-            <p>
-              <strong>Visibility:</strong>{' '}
-              {preview.visibilityPublic ? 'Public' : 'Private'}
-            </p>
+            <p><strong>Category:</strong> {preview.category}</p>
+            <p><strong>Tags:</strong> {preview.tags.join(", ") || "None"}</p>
+            <p><strong>Type:</strong> {preview.pollType === "single" ? "Single Choice" : "Multiple Choice"}</p>
+            <p><strong>Visibility:</strong> {preview.visibilityPublic ? "Public" : "Private"}</p>
             {preview.closeDate && (
-              <p>
-                <strong>Closes on:</strong>{' '}
-                {new Date(preview.closeDate).toLocaleDateString()}
-              </p>
+              <p><strong>Closes on:</strong> {new Date(preview.closeDate).toLocaleDateString()}</p>
             )}
           </div>
           <ul className="preview-list">
@@ -305,18 +271,10 @@ const PollCreate = () => {
           </ul>
 
           <div className="preview-btn-group">
-            <button
-              onClick={handleMakeLive}
-              className="btn-success"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Submitting...' : '✅ Make It Live'}
+            <button onClick={handleMakeLive} className="btn-success" disabled={isLoading}>
+              {isLoading ? "Submitting..." : "✅ Make It Live"}
             </button>
-            <button
-              onClick={() => setPreview(null)}
-              className="btn-secondary"
-              disabled={isLoading}
-            >
+            <button onClick={() => setPreview(null)} className="btn-secondary" disabled={isLoading}>
               ✏️ Edit
             </button>
           </div>

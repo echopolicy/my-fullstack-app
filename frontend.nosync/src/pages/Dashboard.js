@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../context/AuthContext";  // ✅ use context here
 import {
   FacebookShareButton,
   TwitterShareButton,
@@ -17,40 +18,39 @@ import {
 const CATEGORY_OPTIONS = ['All', 'Workplace', 'Tech', 'Politics', 'Education', 'Health'];
 
 const Dashboard = () => {
-  const [user, setUser] = useState(null);
+  const { user, isLoggedIn } = useAuth(); // ✅ context values
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showCopyToast, setShowCopyToast] = useState(false);
-  const [searchTerm, setSearchTerm] = useState(''); // Search input state
-  const [selectedCategory, setSelectedCategory] = useState('All'); // Category filter state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-
-      const fetchUserPolls = async () => {
-        try {
-          const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/polls?user_id=${parsedUser.id}`);
-          if (!response.ok) throw new Error('Failed to fetch your polls');
-          const data = await response.json();
-          setPolls(data);
-        } catch (err) {
-          console.error(err);
-          setError('Failed to load your polls.');
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchUserPolls();
-    } else {
+    if (!isLoggedIn || !user?.id) {
       setLoading(false);
+      return;
     }
-  }, []);
+
+    const fetchUserPolls = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_API_BASE_URL}/polls?user_id=${user.id}`
+        );
+        if (!response.ok) throw new Error('Failed to fetch your polls');
+        const data = await response.json();
+        setPolls(data);
+      } catch (err) {
+        console.error(err);
+        setError('Failed to load your polls.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserPolls();
+  }, [isLoggedIn, user]);
 
   const handleCopyLink = (url) => {
     navigator.clipboard.writeText(url).then(() => {
@@ -66,14 +66,17 @@ const Dashboard = () => {
     return matchesCategory && matchesSearch;
   });
 
-  if (!user) return <p className="text-center p-10">Loading dashboard...</p>;
+  if (!isLoggedIn) {
+    return <p className="text-center p-10">Please log in to view your dashboard.</p>;
+  }
+
   if (loading) return <div className="text-center p-10">Loading your polls...</div>;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Welcome, {user.fullName}</h1>
+      <h1 className="text-2xl font-bold mb-4">Welcome, {user?.fullName}</h1>
 
-    {/* Create Poll button */}
+      {/* Create Poll button */}
       <div className="mb-6">
         <button
           onClick={() => navigate("/admin/create")}
@@ -102,7 +105,6 @@ const Dashboard = () => {
           ))}
         </select>
       </div>
-
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
@@ -154,7 +156,6 @@ const Dashboard = () => {
                     >
                       Edit Poll
                   </button>
-
 
                   <div className="flex items-center flex-wrap gap-3 mt-4 pt-3 border-t">
                     <span className="text-sm font-medium text-gray-600">Share:</span>
