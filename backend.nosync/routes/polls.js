@@ -22,7 +22,7 @@ router.post('/', async (req, res) => {
       options,
       votes: Array(options.length).fill(0),
       trending: trending || false,
-      user_id: userId || null, // use userId from request body
+      user_id: user_id || null, // use user_id from request body
     };
 
     const poll = await Poll.create(pollData);
