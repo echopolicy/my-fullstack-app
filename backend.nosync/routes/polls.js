@@ -6,7 +6,7 @@ const { Op } = require('sequelize');
 // Create a new poll
 router.post('/', async (req, res) => {
   try {
-    const { options, question, category, tags, closeDate, pollType, visibilityPublic, trending, userId } = req.body;
+    const { options, question, category, tags, closeDate, pollType, visibilityPublic, trending, user_id } = req.body;
 
     if (!Array.isArray(options) || options.length === 0) {
       return res.status(400).json({ error: 'Options must be a non-empty array' });
