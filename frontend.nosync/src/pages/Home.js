@@ -14,7 +14,6 @@ const Home = () => {
       try {
         setLoading(true);
         setError(null);
-        // CORRECTED: Using the environment variable for the API URL
         const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/polls/featured`);
         
         if (!response.ok) {
@@ -49,30 +48,49 @@ const Home = () => {
   // Helper component for rendering poll cards
   const PollsDisplay = () => {
     if (loading) {
-      return <p className="text-gray-600">Loading featured polls...</p>;
+      return (
+        <div className="flex justify-center items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+          <p className="text-gray-600 ml-4">Loading featured polls...</p>
+        </div>
+      );
     }
     if (error) {
-      return <p className="text-red-500">Error: {error}</p>;
+      return <p className="text-red-500 text-center animate-pulse">Error: {error}</p>;
     }
     if (filteredPolls.length === 0) {
-      return <p className="text-gray-600 col-span-full">No featured polls match your criteria.</p>;
+      return <p className="text-gray-600 text-center col-span-full">No polls match your search. Try another!</p>;
     }
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {filteredPolls.map((poll) => (
-          <div key={poll.id || poll._id} className="bg-white shadow p-4 border rounded flex flex-col">
+          <div
+            key={poll.id || poll._id}
+            className="bg-white shadow-lg p-6 border rounded-lg flex flex-col transform transition-all duration-300 hover:scale-105 hover:shadow-xl border-blue-200"
+          >
             <div className="flex-grow">
-              <h3 className="font-semibold text-base mb-2">{poll.question}</h3>
+              <h3 className="font-semibold text-lg text-blue-900 mb-2">{poll.question}</h3>
               <p className="text-sm text-gray-600 mb-2">
-                 {/* CORRECTED: Sum the votes array */}
                 Total Votes: {Array.isArray(poll.votes) ? poll.votes.reduce((sum, current) => sum + current, 0) : 0}
               </p>
+              <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                <div
+                  className="bg-gradient-to-r from-green-400 to-blue-500 h-2.5 rounded-full transition-all duration-500"
+                  style={{
+                    width: `${
+                      Array.isArray(poll.votes)
+                        ? (poll.votes.reduce((sum, current) => sum + current, 0) / 100) * 100
+                        : 0
+                    }%`,
+                  }}
+                ></div>
+              </div>
             </div>
             <Link
               to={`/polls/${poll.id || poll._id}`}
-              className="inline-block mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-center text-sm"
+              className="inline-block mt-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all duration-300 text-center text-sm font-medium"
             >
-              Vote Now
+              Cast Your Vote
             </Link>
           </div>
         ))}
@@ -81,54 +99,67 @@ const Home = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-12 px-4 text-center">
+    <div className="max-w-6xl mx-auto py-12 px-4 text-center">
       {/* Hero Section */}
-      <h1 className="text-4xl font-bold text-blue-700 mb-4">EchoPolicy</h1>
-      <p className="text-lg text-gray-700 mb-6 max-w-3xl mx-auto">
-        Our mission is simple: to amplify public and workplace voices through short, impactful polls—influencing policies that matter.
-      </p>
-      <Link
-        to="/polls"
-        className="inline-block bg-blue-600 text-white px-6 py-3 rounded shadow hover:bg-blue-700 transition mb-16"
-      >
-        Get Started – View All Polls
-      </Link>
+      <div className="relative bg-gradient-to-b from-blue-100 to-green-100 py-16 rounded-lg shadow-lg animate-fade-in">
+        <h1 className="text-5xl font-extrabold text-blue-800 mb-4 animate-slide-up">EchoPolicy</h1>
+        <p className="text-xl text-gray-800 mb-8 max-w-3xl mx-auto animate-slide-up animation-delay-200">
+          Your voice matters! Join thousands in shaping policies through quick, impactful polls.
+        </p>
+        <Link
+          to="/polls"
+          className="inline-block bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-4 rounded-full shadow-lg hover:from-orange-600 hover:to-orange-700 transform hover:scale-105 transition-all duration-300 text-lg font-semibold animate-pulse-slow"
+        >
+          Start Voting Now
+        </Link>
+      </div>
 
       {/* How It Works Section */}
-      <section className="mb-16">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">How It Works</h2>
+      <section className="my-16">
+        <h2 className="text-3xl font-semibold text-blue-800 mb-8 animate-slide-up">How It Works</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-          <div className="bg-white shadow p-6 rounded border">
-            <h3 className="font-bold mb-2">1. Create or Vote</h3>
-            <p className="text-sm text-gray-600">Start your own poll or participate in polls that matter to you.</p>
-          </div>
-          <div className="bg-white shadow p-6 rounded border">
-            <h3 className="font-bold mb-2">2. See the Data</h3>
-            <p className="text-sm text-gray-600">We aggregate responses to surface honest, community-powered insights.</p>
-          </div>
-          <div className="bg-white shadow p-6 rounded border">
-            <h3 className="font-bold mb-2">3. Share the Impact</h3>
-            <p className="text-sm text-gray-600">Use data to inform decisions, support change, and drive policy conversations.</p>
-          </div>
+          {[
+            {
+              title: '1. Vote or Create',
+              description: 'Jump into polls that spark your interest or launch your own in seconds.',
+            },
+            {
+              title: '2. Discover Insights',
+              description: 'See real-time results and uncover what your community thinks.',
+            },
+            {
+              title: '3. Drive Change',
+              description: 'Share poll results to spark conversations and influence decisions.',
+            },
+          ].map((step, index) => (
+            <div
+              key={index}
+              className="bg-white shadow-lg p-6 rounded-lg border transform transition-all duration-300 hover:scale-105 hover:shadow-xl border-green-200 animate-slide-up"
+              style={{ animationDelay: `${index * 200}ms` }}
+            >
+              <h3 className="font-bold text-lg text-blue-800 mb-2">{step.title}</h3>
+              <p className="text-sm text-gray-600">{step.description}</p>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* Featured Polls Section */}
-      <section className="mb-12 text-left max-w-4xl mx-auto">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Featured Polls</h2>
+      <section className="mb-12 text-left max-w-5xl mx-auto">
+        <h2 className="text-3xl font-semibold text-blue-800 mb-6 animate-slide-up">Trending Polls</h2>
 
-        <div className="flex flex-col sm:flex-row gap-2 mb-4">
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <input
             type="text"
-            placeholder="Search featured polls..."
+            placeholder="Find polls that matter to you..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-4 py-2 border rounded w-full sm:flex-grow"
+            className="px-4 py-2 border rounded-lg w-full sm:flex-grow focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all duration-300"
           />
           <select
             value={selectedTag}
             onChange={(e) => setSelectedTag(e.target.value)}
-            className="px-4 py-2 border rounded w-full sm:w-auto"
+            className="px-4 py-2 border rounded-lg w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all duration-300"
           >
             {uniqueTags.map((tag) => (
               <option key={tag} value={tag}>
@@ -141,8 +172,8 @@ const Home = () => {
         <PollsDisplay />
       </section>
 
-      <footer className="text-gray-500 italic mt-16">
-        “Change doesn't start with lawmakers—it starts with voices like yours.”
+      <footer className="text-gray-600 font-medium mt-16 animate-fade-in">
+        “Your vote is your voice—make it count!”
       </footer>
     </div>
   );

@@ -8,11 +8,12 @@ import About from './pages/About';
 import NotFound from './pages/NotFound';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import Terms from "./pages/Terms";
+import Terms from './pages/Terms';
 import PrivacyPolicy from "./pages/PrivacyPolicy";  
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import PollEdit from './pages/PollEdit';
+import Forum from './components/Forum';
 
 // Import AuthProvider (not default)
 import { AuthProvider } from './context/AuthContext';
@@ -39,6 +40,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="admin/edit/:id" element={<PollEdit />} />
               <Route path="*" element={<NotFound />} />
+              <Route path="/forum" element={<Forum/>}/>
             </Routes>
           </main>
           <Footer />

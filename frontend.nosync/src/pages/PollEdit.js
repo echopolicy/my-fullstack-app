@@ -16,7 +16,7 @@ const PollEdit = () => {
   const [pollType, setPollType] = useState('single');
   const [visibility, setVisibility] = useState('public');
   const [options, setOptions] = useState([]);
-  const [showToast, setShowToast] = useState(false);
+//  const [showToast, setShowToast] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 

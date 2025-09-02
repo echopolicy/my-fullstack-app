@@ -5,10 +5,12 @@ const cors = require('cors');
 const sequelize = require('./config/database');
 const pollsRouter = require('./routes/polls');
 const usersRouter = require('./routes/users');
+const commentRoutes = require('./routes/comments');
 
 // ✅ Import the model so Sequelize knows about it
 require('./models/Poll'); 
 require('./models/User'); 
+require('./models/Comment'); 
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,6 +22,7 @@ app.use(express.json());
 // Routes
 app.use('/api/polls', pollsRouter);
 app.use('/api/users', usersRouter); 
+app.use('/comments', commentRoutes);
 
 // Root route
 app.get('/', (req, res) => {

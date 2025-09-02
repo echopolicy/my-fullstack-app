@@ -12,6 +12,7 @@ import {
   WhatsappIcon,
   EmailIcon,
 } from 'react-share';
+import Forum from "../components/Forum";
 
 const PollDetail = () => {
   const { id } = useParams();
@@ -191,6 +192,10 @@ const PollDetail = () => {
           </button>
         </div>
       </div>
+
+      {/* Forum Section */}
+      
+      <Forum pollId={poll.id || poll._id} />
 
       {/* Toast Notifications */}
       {showVoteToast && (
