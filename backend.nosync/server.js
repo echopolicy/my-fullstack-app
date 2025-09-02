@@ -22,7 +22,7 @@ app.use(express.json());
 // Routes
 app.use('/api/polls', pollsRouter);
 app.use('/api/users', usersRouter); 
-app.use('/comments', commentRoutes);
+app.use('/api/comments', commentRoutes);
 
 // Root route
 app.get('/', (req, res) => {

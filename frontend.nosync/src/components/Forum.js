@@ -1,6 +1,6 @@
 // Forum.js
 import { useEffect, useState } from "react";
-import { useAuth } from "../context/AuthContext"; // adjust path as needed
+import { useAuth } from "../context/AuthContext";
 
 const Forum = ({ pollId }) => {
   const { isLoggedIn, user } = useAuth();
@@ -12,12 +12,14 @@ const Forum = ({ pollId }) => {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/comments/${pollId}`);
+        const res = await fetch(
+          `${process.env.REACT_APP_API_BASE_URL}/comments/poll/${pollId}`
+        );
         if (!res.ok) throw new Error("Failed to fetch comments");
         const data = await res.json();
         setComments(data);
       } catch (err) {
-        console.error(err);
+        console.error("Fetch error:", err);
       } finally {
         setLoading(false);
       }
@@ -25,8 +27,8 @@ const Forum = ({ pollId }) => {
     fetchComments();
   }, [pollId]);
 
-  // Add new comment
-  const handleAddComment = async (parentId = null) => {
+  // Add new comment (or reply if parentId passed)
+  const handleAddComment = async (parent_id = null) => {
     if (!isLoggedIn) {
       alert("You must be logged in to comment.");
       return;
@@ -34,46 +36,56 @@ const Forum = ({ pollId }) => {
     if (!newComment.trim()) return;
 
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/comments`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // token from AuthContext
-        },
-        body: JSON.stringify({ pollId, content: newComment, parentId }),
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/comments/poll/${pollId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            poll_id: pollId,
+            user_id: user.id,
+            content: newComment,
+            parent_id,
+          }),
+        }
+      );
       if (!res.ok) throw new Error("Failed to post comment");
       const data = await res.json();
 
-      // Optimistically update UI
-      setComments((prev) => [...prev, data]);
+      // Refresh comments from backend (safer than optimistic update with nested replies)
+      const updated = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/comments/poll/${pollId}`
+      ).then((r) => r.json());
+
+      setComments(updated);
       setNewComment("");
     } catch (err) {
-      console.error(err);
+      console.error("Post error:", err);
     }
   };
 
-  // Render comments recursively
-  const renderComments = (parentId = null) =>
-    comments
-      .filter((c) => c.parentId === parentId)
-      .map((c) => (
-        <div key={c.id} className="ml-4 mt-2 border-l pl-2">
-          <p className="text-sm">
-            <strong>{c.username || "User"}:</strong> {c.content}
-          </p>
-          {isLoggedIn && (
-            <button
-              className="text-xs text-blue-600 mt-1"
-              onClick={() => setNewComment(`@${c.username} `)}
-            >
-              Reply
-            </button>
-          )}
-          {renderComments(c.id)}
-        </div>
-      ));
+  // Render nested comments (backend already includes replies)
+  const renderComments = (list) =>
+    list.map((c) => (
+      <div key={c.id} className="ml-4 mt-2 border-l pl-2">
+        <p className="text-sm">
+          <strong>{c.User?.fullName || "User"}:</strong> {c.content}
+        </p>
+        {isLoggedIn && (
+          <button
+            className="text-xs text-blue-600 mt-1"
+            onClick={() => handleAddComment(c.id)}
+          >
+            Reply
+          </button>
+        )}
+        {c.replies && c.replies.length > 0 && (
+          <div className="ml-4">{renderComments(c.replies)}</div>
+        )}
+      </div>
+    ));
 
   return (
     <div className="mt-6 p-4 border-t">
@@ -104,7 +116,7 @@ const Forum = ({ pollId }) => {
       {loading ? (
         <p className="text-gray-400">Loading comments...</p>
       ) : (
-        <div>{renderComments()}</div>
+        <div>{renderComments(comments)}</div>
       )}
     </div>
   );
