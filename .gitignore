@@ -50,3 +50,4 @@ Thumbs.db
 *.tmp
 *.temp
 frontend.nosync/.env
+frontend.nosync/.env
