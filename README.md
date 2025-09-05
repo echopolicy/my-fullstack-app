@@ -44,13 +44,16 @@ my-fullstack-app
    cd ../backend
    npm install
    ```
+4. Change/Add environment files. 
+   4.1 Backend needs connection strings for database.
+   4.2 Front end needs path for APIs
 
 ### Running the Application
 
 1. Start the backend server:
    ```
    cd backend
-   npm start
+   npm run dev
    ```
 
 2. Start the frontend application:
@@ -75,7 +78,10 @@ You can change folder names (frontend and backend) to remove .nosync. It was add
 
 ## Deployment
 
-For deploying the code, you can explore free options. For the purpose of this project our code is deployed on Vercel, backend on Hostinger and database on Supabase
+For deploying the code, you can explore free options. Some suggestions: 
+1. Front end on Vercel (has a free tier)
+2. Backend on Hostinger (VPS for low price)
+3. Database on Supabase (has a free tier)
 
 ### Front-End
 1. Vercel gives free hosting for front end only. Create a free account on vercel.com. Follow the prompts to create the account. 
@@ -106,9 +112,12 @@ If you would like to contribute to this project, please fork the repository and 
 2. Captcha before voting for public vote
 3. Admin Panel 
 4. History for poll creators
-5. Forums to discuss Polls 
-6. SEO
+5. Forums to discuss Polls (beta version is coded)
+6. SEO (can be made better)
 7. Delete account
+8. Leaderboard 
+9. Analytics (Polls created, Impact)
+10. Homepage improvements
 
 ## License
 

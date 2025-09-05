@@ -108,9 +108,15 @@ const Home = () => {
         </p>
         <Link
           to="/polls"
-          className="inline-block bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-4 rounded-full shadow-lg hover:from-orange-600 hover:to-orange-700 transform hover:scale-105 transition-all duration-300 text-lg font-semibold animate-pulse-slow"
+          className="mr-4 inline-block bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-4 rounded-full shadow-lg hover:from-orange-600 hover:to-orange-700 transform hover:scale-105 transition-all duration-300 text-lg font-semibold animate-pulse-slow"
         >
           Start Voting Now
+        </Link>
+         <Link
+          to="/create"
+          className="inline-block bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-4 rounded-full shadow-lg hover:from-orange-600 hover:to-orange-700 transform hover:scale-105 transition-all duration-300 text-lg font-semibold animate-pulse-slow"
+        >
+          Create New Poll
         </Link>
       </div>
 
