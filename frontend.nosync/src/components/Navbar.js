@@ -57,6 +57,9 @@ const Navbar = () => {
                     <Link to="/dashboard" onClick={() => setMenuOpen(false)}>
                       Your Polls
                     </Link>
+                     <Link to="/settings" onClick={() => setMenuOpen(false)}>
+                      Settings
+                    </Link>
                     <button onClick={handleLogout} className="text-red-500">
                       Logout
                     </button>
@@ -89,6 +92,7 @@ const Navbar = () => {
             <>
               <Link to="/admin/create" onClick={() => setMobileOpen(false)}>New Poll</Link>
               <Link to="/dashboard" onClick={() => setMobileOpen(false)}>Your Polls</Link>
+              <Link to="/settings" onClick={() => setMobileOpen(false)}>Settings</Link>
               <button onClick={handleLogout} className="text-red-500">Logout</button>
             </>
           ) : (

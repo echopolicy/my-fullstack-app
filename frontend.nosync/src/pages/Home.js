@@ -106,18 +106,20 @@ const Home = () => {
         <p className="text-xl text-gray-800 mb-8 max-w-3xl mx-auto animate-slide-up animation-delay-200">
           Your voice matters! Join thousands in shaping policies through quick, impactful polls.
         </p>
-        <Link
-          to="/polls"
-          className="mr-4 inline-block bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-4 rounded-full shadow-lg hover:from-orange-600 hover:to-orange-700 transform hover:scale-105 transition-all duration-300 text-lg font-semibold animate-pulse-slow"
-        >
-          Start Voting Now
-        </Link>
-         <Link
-          to="/create"
-          className="inline-block bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-4 rounded-full shadow-lg hover:from-orange-600 hover:to-orange-700 transform hover:scale-105 transition-all duration-300 text-lg font-semibold animate-pulse-slow"
-        >
-          Create New Poll
-        </Link>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
+          <Link
+            to="/polls"
+            className="mr-4 inline-block bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-4 rounded-full shadow-lg hover:from-orange-600 hover:to-orange-700 transform hover:scale-105 transition-all duration-300 text-lg font-semibold animate-pulse-slow"
+          >
+            Start Voting Now
+          </Link>
+          <Link
+            to="/create"
+            className="inline-block bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-4 rounded-full shadow-lg hover:from-orange-600 hover:to-orange-700 transform hover:scale-105 transition-all duration-300 text-lg font-semibold animate-pulse-slow"
+          >
+            Create New Poll
+          </Link>
+        </div>
       </div>
 
       {/* How It Works Section */}

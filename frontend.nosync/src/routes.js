@@ -12,6 +12,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import PollEdit from './pages/PollEdit';
 import Forum from './components/Forum';
+import Settings from './pages/settings';
 
 const routes = [
   {
@@ -116,6 +117,14 @@ const routes = [
     seo: {
       title: "Forum | EchoPolicy",
       description: "Join discussions and connect with the EchoPolicy community."
+    }
+  },
+    {
+    path: "/settings",
+    element: <Settings />,
+    seo: {
+      title: "Settings | EchoPolicy",
+      description: "Change user settings or delete your EchoPolocy account."
     }
   },
   {
