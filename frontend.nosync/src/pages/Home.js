@@ -152,6 +152,12 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Privacy Section */}
+      <section className="my-20 bg-gradient-to-r from-blue-50 to-green-50 py-10 px-6 rounded-lg shadow-md text-center max-w-5xl mx-auto animate-fade-in">
+        <h4 className="text-3xl font-semibold text-blue-800 mb-4">🔒 Your Privacy Matters!</h4>
+        <p className="text-gray-700 text-lg">Private polls are <span className="font-semibold text-blue-700">never shared</span>. You’re in full control of your voice.</p>
+      </section>
+
       {/* Featured Polls Section */}
       <section className="mb-12 text-left max-w-5xl mx-auto">
         <h2 className="text-3xl font-semibold text-blue-800 mb-6 animate-slide-up">Trending Polls</h2>
