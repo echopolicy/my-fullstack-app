@@ -108,13 +108,13 @@ To debug your deployment a step-by-step approach will be
 ## Contributing
 
 If you would like to contribute to this project, please fork the repository and submit a pull request. Features to be developed (and in progress) include:
-1. Logins and Verification (In Progress)
+1. Verification for login
 2. Captcha before voting for public vote
-3. Admin Panel 
-4. History for poll creators
+3. Admin Panel
+4. Report button on polls. Report flags the poll. COnsider a separate table that keeps track of flagging
 5. Forums to discuss Polls (beta version is coded)
 6. SEO (can be made better)
-7. Delete account
+7. Delete account (hook the backend)
 8. Leaderboard 
 9. Analytics (Polls created, Impact)
 10. Homepage improvements
