@@ -1,126 +1,87 @@
 // src/components/PollShare.js
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   FacebookShareButton,
   TwitterShareButton,
   LinkedinShareButton,
   WhatsappShareButton,
+  EmailShareButton,
   FacebookIcon,
   TwitterIcon,
   LinkedinIcon,
   WhatsappIcon,
+  EmailIcon,
 } from 'react-share';
+import { Copy, Code } from 'lucide-react';
 
-/**
- * Props:
- *  - shareUrl (string) - full url to the poll (e.g. https://echopolicy.com/polls/123)
- *  - pollQuestion (string)
- *  - pollId (string) - used to build embed URL
- *  - variant ("full" | "compact") optional - controls sizes
- */
-export default function PollShare({ shareUrl, pollQuestion, pollId, variant = 'full' }) {
+const PollShare = ({ shareUrl, pollQuestion, pollId, variant = 'default' }) => {
   const [showCopyToast, setShowCopyToast] = useState(false);
-  const [showEmbedToast, setShowEmbedToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
-  // Use existing polls route + embed query param so it's less likely to 404 on hosted SPAs
-  const iframeSrc = `${window.location.origin}/polls/${pollId}?embed=1`;
-  const embedHtml = `<iframe src="${iframeSrc}" width="100%" height="400" frameborder="0" style="border:0" loading="lazy"></iframe>`;
+  const copyToClipboard = (text, message) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setToastMessage(message);
+      setShowCopyToast(true);
+      setTimeout(() => setShowCopyToast(false), 2500);
+    });
+  };
 
-  const iconSize = variant === 'full' ? 40 : 32;
-  const buttonSizeClass = variant === 'full' ? 'w-10 h-10' : 'w-8 h-8'; // tailwind classes (40px / 32px)
+  const embedCode = `<iframe src="https://echopolicy.com/embed/${pollId}" width="600" height="400" frameborder="0"></iframe>`;
 
-  async function copyText(text, isEmbed = false) {
-    try {
-      await navigator.clipboard.writeText(text);
-      if (isEmbed) {
-        setShowEmbedToast(true);
-        setTimeout(() => setShowEmbedToast(false), 2200);
-      } else {
-        setShowCopyToast(true);
-        setTimeout(() => setShowCopyToast(false), 2200);
-      }
-    } catch (err) {
-      console.error('Clipboard write failed', err);
-      // optionally provide fallback UI
-    }
-  }
-
-  // Inline SVG icons (no external dependency)
-  const CopyIcon = ({ size = 20 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M16 21H8a2 2 0 0 1-2-2V7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-      <rect x="8" y="3" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  );
-
-  const CodeIcon = ({ size = 20 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M16 18l6-6-6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M8 6l-6 6 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  );
+  const iconSize = variant === 'compact' ? 32 : 40;
+  const gap = variant === 'compact' ? 'gap-2' : 'gap-3';
+  const containerClasses =
+    variant === 'compact'
+      ? 'flex items-center flex-wrap mt-2'
+      : 'mt-8 pt-4 border-t text-center';
 
   return (
-    <div className={variant === 'full' ? 'mt-6' : 'mt-3'}>
-      {variant === 'full' && <h3 className="text-center font-semibold mb-3">Share this poll</h3>}
-
-      <div className="flex items-center justify-center flex-wrap gap-3">
+    <div className={containerClasses}>
+      {variant !== 'compact' && <h3 className="font-semibold mb-3">Share this Poll</h3>}
+      <div className={`flex items-center justify-center ${gap} flex-wrap`}>
         <TwitterShareButton url={shareUrl} title={pollQuestion}>
-          <div className={buttonSizeClass + ' rounded-full overflow-hidden'} title="Share on Twitter">
-            <TwitterIcon size={iconSize} round />
-          </div>
+          <TwitterIcon size={iconSize} round />
         </TwitterShareButton>
-
         <FacebookShareButton url={shareUrl} quote={pollQuestion}>
-          <div className={buttonSizeClass + ' rounded-full overflow-hidden'} title="Share on Facebook">
-            <FacebookIcon size={iconSize} round />
-          </div>
+          <FacebookIcon size={iconSize} round />
         </FacebookShareButton>
-
         <LinkedinShareButton url={shareUrl} title={pollQuestion}>
-          <div className={buttonSizeClass + ' rounded-full overflow-hidden'} title="Share on LinkedIn">
-            <LinkedinIcon size={iconSize} round />
-          </div>
+          <LinkedinIcon size={iconSize} round />
         </LinkedinShareButton>
-
         <WhatsappShareButton url={shareUrl} title={pollQuestion}>
-          <div className={buttonSizeClass + ' rounded-full overflow-hidden'} title="Share on WhatsApp">
-            <WhatsappIcon size={iconSize} round />
-          </div>
+          <WhatsappIcon size={iconSize} round />
         </WhatsappShareButton>
+        <EmailShareButton url={shareUrl} subject={pollQuestion} body="Check out this poll:">
+          <EmailIcon size={iconSize} round />
+        </EmailShareButton>
 
         {/* Copy Link Icon */}
-        <button
-          onClick={() => copyText(shareUrl, false)}
-          title="Copy link"
-          className={`${buttonSizeClass} flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 transition`}
-          aria-label="Copy poll link"
+        <div
+          onClick={() => copyToClipboard(shareUrl, 'Link copied!')}
+          title="Copy poll link"
+          className="cursor-pointer w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition"
         >
-          <CopyIcon size={variant === 'full' ? 20 : 16} />
-        </button>
+          <Copy className="w-5 h-5 text-gray-700" />
+        </div>
 
         {/* Copy Embed Icon */}
-        <button
-          onClick={() => copyText(embedHtml, true)}
-          title="Copy embed iframe HTML"
-          className={`${buttonSizeClass} flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 transition`}
-          aria-label="Copy embed HTML"
+        <div
+          onClick={() => copyToClipboard(embedCode, 'Embed code copied!')}
+          title="Copy embed code"
+          className="cursor-pointer w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition"
         >
-          <CodeIcon size={variant === 'full' ? 20 : 16} />
-        </button>
+          <Code className="w-5 h-5 text-gray-700" />
+        </div>
       </div>
 
-      {/* Toasts (local to this component) */}
+      {/* Toast Notification */}
       {showCopyToast && (
-        <div className="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg z-[9999]">
-          Link copied to clipboard!
-        </div>
-      )}
-      {showEmbedToast && (
-        <div className="fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-[9999]">
-          Embed HTML copied!
+        <div className="fixed bottom-4 right-4 bg-gray-800 text-white px-5 py-2 rounded-lg shadow-lg z-50">
+          {toastMessage}
         </div>
       )}
     </div>
   );
-}
+};
+
+export default PollShare;

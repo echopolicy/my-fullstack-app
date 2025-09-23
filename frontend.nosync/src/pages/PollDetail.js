@@ -140,7 +140,7 @@ const PollDetail = () => {
 
         {/* In embedded mode we show a compact share row (optional). Use variant="compact" */}
         <div className="mt-4">
-          <PollShare shareUrl={shareUrl} pollQuestion={pollQuestion} pollId={poll.id || poll._id} variant="compact" />
+          <PollShare shareUrl={shareUrl} pollQuestion={pollQuestion} pollId={poll.id || poll._id} variant="default" />
         </div>
 
         {/* Small vote confirmation (only inside embed) */}
