@@ -114,10 +114,13 @@ If you would like to contribute to this project, please fork the repository and 
 4. Report button on polls. Report flags the poll. COnsider a separate table that keeps track of flagging
 5. Forums to discuss Polls (beta version is coded)
 6. SEO (can be made better)
-7. Delete account (hook the backend)
+7. Delete account
 8. Leaderboard 
 9. Analytics (Polls created, Impact)
+9.1 Analytics for real time update during sharing
 10. Homepage improvements
+11. Iframe for including into websites
+12. Sharing using QR Code or a number
 
 ## License
 

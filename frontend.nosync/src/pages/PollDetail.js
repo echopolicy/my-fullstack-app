@@ -1,26 +1,20 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import {
-  FacebookShareButton,
-  TwitterShareButton,
-  LinkedinShareButton,
-  WhatsappShareButton,
-  EmailShareButton,
-  FacebookIcon,
-  TwitterIcon,
-  LinkedinIcon,
-  WhatsappIcon,
-  EmailIcon,
-} from 'react-share';
+import { useParams, useLocation } from 'react-router-dom';
 import Forum from "../components/Forum";
+import PollShare from "../components/PollShare";
 
 const PollDetail = () => {
   const { id } = useParams();
+  const location = useLocation();
+
+  // detect embed mode if URL has ?embed=1 or ?embed=true
+  const searchParams = new URLSearchParams(location.search);
+  const embedMode = searchParams.get('embed') === '1' || searchParams.get('embed') === 'true';
+
   const [poll, setPoll] = useState(null);
   const [hasVoted, setHasVoted] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [showVoteToast, setShowVoteToast] = useState(false);
-  const [showCopyToast, setShowCopyToast] = useState(false);
 
   useEffect(() => {
     const voted = localStorage.getItem(`voted-${id}`) === 'true';
@@ -36,7 +30,6 @@ const PollDetail = () => {
         setPoll(data);
       } catch (err) {
         console.error('Error fetching poll:', err);
-        // Optionally set an error state here to show in the UI
       }
     };
 
@@ -46,9 +39,7 @@ const PollDetail = () => {
   const handleOptionChange = (index) => {
     if (poll.pollType === 'multiple') {
       setSelectedOptions((prev) =>
-        prev.includes(index)
-          ? prev.filter((i) => i !== index)
-          : [...prev, index]
+        prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
       );
     } else {
       setSelectedOptions([index]);
@@ -75,41 +66,99 @@ const PollDetail = () => {
       } else {
         const errorMsg = await response.text();
         console.error('Vote failed:', errorMsg);
-        // Consider showing a user-friendly error message instead of an alert
       }
     } catch (err) {
       console.error('Error submitting vote:', err);
     }
-  };
-  
-  const handleCopyLink = (url) => {
-    navigator.clipboard.writeText(url).then(() => {
-      setShowCopyToast(true);
-      setTimeout(() => setShowCopyToast(false), 2500);
-    }).catch(err => {
-      console.error('Failed to copy link: ', err);
-    });
   };
 
   if (!poll) {
     return <div className="p-6 text-center">Loading poll...</div>;
   }
 
-  // Define share variables here so they are always available
-  const shareUrl = window.location.href;
+  const shareUrl = window.location.href; // will include ?embed=1 when inside iframe
   const pollQuestion = poll.question;
 
-  const votesArray = Array.isArray(poll.votes)
-    ? poll.votes
-    : Array(poll.options.length).fill(0);
+  const votesArray = Array.isArray(poll.votes) ? poll.votes : Array(poll.options.length).fill(0);
   const totalVotes = votesArray.reduce((a, b) => a + b, 0);
 
+  // Minimal container for embed mode (less padding and no extra UI)
+  if (embedMode) {
+    return (
+      <div className="p-4 max-w-full mx-auto" style={{ fontFamily: 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial' }}>
+        <h2 className="text-lg font-semibold mb-3">{poll.question}</h2>
+
+        {!hasVoted ? (
+          <div className="mb-4">
+            <div className="space-y-2 mb-4">
+              {poll.options.map((option, index) => (
+                <label key={index} className="block p-2 border rounded hover:bg-gray-50 cursor-pointer">
+                  <input
+                    type={poll.pollType === 'multiple' ? 'checkbox' : 'radio'}
+                    name="pollOption"
+                    value={index}
+                    checked={selectedOptions.includes(index)}
+                    onChange={() => handleOptionChange(index)}
+                    className="mr-2"
+                  />
+                  {option.text}
+                </label>
+              ))}
+            </div>
+            <button
+              onClick={handleVote}
+              disabled={selectedOptions.length === 0}
+              className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50 w-full"
+            >
+              Submit Vote
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {poll.options.map((option, index) => {
+              const voteCount = votesArray[index] || 0;
+              const percent = totalVotes > 0 ? Math.round((voteCount / totalVotes) * 100) : 0;
+              return (
+                <div key={index}>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="font-medium">{option.text}</span>
+                    <span>{voteCount} votes ({percent}%)</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-4">
+                    <div
+                      className="bg-blue-500 h-4 rounded-full text-xs text-white flex items-center justify-center"
+                      style={{ width: `${percent}%` }}
+                    >
+                     {percent > 10 ? `${percent}%` : ''}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* In embedded mode we show a compact share row (optional). Use variant="compact" */}
+        <div className="mt-4">
+          <PollShare shareUrl={shareUrl} pollQuestion={pollQuestion} pollId={poll.id || poll._id} variant="compact" />
+        </div>
+
+        {/* Small vote confirmation (only inside embed) */}
+        {showVoteToast && (
+          <div className="fixed bottom-3 right-3 bg-green-600 text-white px-3 py-1 rounded text-sm">
+            Your vote has been submitted!
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Normal (non-embed) full page rendering
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <h2 className="text-2xl font-bold mb-4">{poll.question}</h2>
       <p className="text-sm text-gray-500 mb-6">Category: {poll.category}</p>
 
-      {/* Voting Section or Results Section */}
       {!hasVoted ? (
         <div className="mb-6">
           <div className="space-y-2 mb-4">
@@ -162,50 +211,15 @@ const PollDetail = () => {
         </div>
       )}
 
-      {/* Share Section - Always visible */}
-      <div className="mt-8 pt-4 border-t">
-        <h3 className="text-center font-semibold mb-3">Share this Poll</h3>
-        <div className="flex items-center justify-center flex-wrap gap-3">
-          <TwitterShareButton url={shareUrl} title={pollQuestion}>
-            <TwitterIcon size={40} round />
-          </TwitterShareButton>
-          <FacebookShareButton url={shareUrl} quote={pollQuestion}>
-            <FacebookIcon size={40} round />
-          </FacebookShareButton>
-          <LinkedinShareButton url={shareUrl} title={pollQuestion}>
-            <LinkedinIcon size={40} round />
-          </LinkedinShareButton>
-          <WhatsappShareButton url={shareUrl} title={pollQuestion}>
-            <WhatsappIcon size={40} round />
-          </WhatsappShareButton>
-          <EmailShareButton url={shareUrl} subject={pollQuestion} body="Check out this poll:">
-            <EmailIcon size={40} round />
-          </EmailShareButton>
-          <button 
-            onClick={() => handleCopyLink(shareUrl)} 
-            title="Copy link" 
-            className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-            </svg>
-          </button>
-        </div>
-      </div>
+      {/* Full-page share */}
+      <PollShare shareUrl={shareUrl} pollQuestion={pollQuestion} pollId={poll.id || poll._id} variant="full" />
 
-      {/* Forum Section */}
-      
+      {/* Forum */}
       <Forum pollId={poll.id || poll._id} />
 
-      {/* Toast Notifications */}
       {showVoteToast && (
         <div className="fixed bottom-4 right-4 bg-green-600 text-white px-5 py-2 rounded-lg shadow-lg">
           Your vote has been submitted!
-        </div>
-      )}
-      {showCopyToast && (
-        <div className="fixed bottom-4 right-4 bg-gray-800 text-white px-5 py-2 rounded-lg shadow-lg">
-          Link copied to clipboard!
         </div>
       )}
     </div>
