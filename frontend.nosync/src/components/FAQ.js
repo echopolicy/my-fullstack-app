@@ -31,7 +31,11 @@ export default function FAQ() {
     {
       question: "Why is it only one question poll?",
       answer:
-        "Our mission is to keep polls short and impactful. A single question ensures clarity, encourages participation, and makes it easier for results to influence decisions without overwhelming users."
+        "Our mission is to keep polls short and impactful. A single question ensures clarity, encourages participation, and makes it easier for results to influence decisions without overwhelming users. We encourage all users to discuss poll in the forums"
+    },
+    {question: "When do I need to create an account?",
+     answer:
+         "Account creation is needed for a public poll or to participate in forum discussions."
     },
     {
       question: "Is EchoPolicy free to use?",
@@ -45,8 +49,18 @@ export default function FAQ() {
     },
     {
       question: "How to contribute to the code?",
-      answer:
-        "EchoPolicy is open-source! You can visit our GitHub repository, fork it, and submit pull requests. Contributions of all kinds — bug fixes, features, or documentation improvements — are welcome."
+      answer: <>
+        EchoPolicy is open-source! You can visit our {" "}
+        <a
+          href="https://github.com/echopolicy"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 underline hover:text-blue-800"
+         >
+          GitHub repository
+        </a>
+        , fork it, and submit pull requests. Contributions of all kinds — bug fixes, features, or documentation improvements — are welcome.
+        </>
     },
   ];
 
