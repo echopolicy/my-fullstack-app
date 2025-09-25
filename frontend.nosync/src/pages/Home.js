@@ -8,18 +8,13 @@ const Home = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('All');
 
-  // Fetch featured polls on mount
   useEffect(() => {
     const fetchPolls = async () => {
       try {
         setLoading(true);
         setError(null);
         const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/polls/featured`);
-        
-        if (!response.ok) {
-          throw new Error('Could not fetch featured polls.');
-        }
-        
+        if (!response.ok) throw new Error('Could not fetch featured polls.');
         const data = await response.json();
         setPolls(data);
       } catch (error) {
@@ -29,15 +24,12 @@ const Home = () => {
         setLoading(false);
       }
     };
-
     fetchPolls();
   }, []);
 
-  // Extract unique tags for the filter dropdown
-  const uniqueTags = ['All', ...new Set(polls.flatMap((poll) => poll.tags || []))];
+  const uniqueTags = ['All', ...new Set(polls.flatMap(poll => poll.tags || []))];
 
-  // Filter polls by search term and selected tag
-  const filteredPolls = polls.filter((poll) => {
+  const filteredPolls = polls.filter(poll => {
     const matchesSearch = poll.question
       ? poll.question.toLowerCase().includes(searchTerm.toLowerCase())
       : false;
@@ -45,7 +37,6 @@ const Home = () => {
     return matchesSearch && matchesTag;
   });
 
-  // Helper component for rendering poll cards
   const PollsDisplay = () => {
     if (loading) {
       return (
@@ -55,15 +46,13 @@ const Home = () => {
         </div>
       );
     }
-    if (error) {
-      return <p className="text-red-500 text-center animate-pulse">Error: {error}</p>;
-    }
+    if (error) return <p className="text-red-500 text-center animate-pulse">Error: {error}</p>;
     if (filteredPolls.length === 0) {
       return <p className="text-gray-600 text-center col-span-full">No polls match your search. Try another!</p>;
     }
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {filteredPolls.map((poll) => (
+        {filteredPolls.map(poll => (
           <div
             key={poll.id || poll._id}
             className="bg-white shadow-lg p-6 border rounded-lg flex flex-col transform transition-all duration-300 hover:scale-105 hover:shadow-xl border-blue-200"
@@ -117,7 +106,7 @@ const Home = () => {
             to="/create"
             className="inline-block bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-4 rounded-full shadow-lg hover:from-orange-600 hover:to-orange-700 transform hover:scale-105 transition-all duration-300 text-lg font-semibold animate-pulse-slow"
           >
-            Create New Poll
+            Create Your Poll
           </Link>
         </div>
       </div>
@@ -152,16 +141,31 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Embed Poll Feature Section */}
+      <section className="my-12 bg-yellow-50 py-10 px-6 rounded-lg shadow-md text-center max-w-5xl mx-auto animate-fade-in">
+        <h3 className="text-2xl font-semibold text-yellow-800 mb-4">🌟 Embed Any Poll Anywhere!</h3>
+        <p className="text-gray-700 text-lg max-w-2xl mx-auto mb-6">
+          Now you can embed any poll on your website via a link or iframe — including WordPress. It’s easy, seamless, and completely free.
+        </p>
+        <Link
+          to="/create"
+          className="inline-block bg-green-500 text-white px-6 py-3 rounded-full shadow-lg hover:bg-green-600 transform hover:scale-105 transition-all duration-300 font-semibold animate-pulse-slow"
+        >
+          Embed a Poll for Free
+        </Link>
+      </section>
+
       {/* Privacy Section */}
       <section className="my-20 bg-gradient-to-r from-blue-50 to-green-50 py-10 px-6 rounded-lg shadow-md text-center max-w-5xl mx-auto animate-fade-in">
         <h4 className="text-3xl font-semibold text-blue-800 mb-4">🔒 Your Privacy Matters!</h4>
-        <p className="text-gray-700 text-lg">Private polls are <span className="font-semibold text-blue-700">never shared</span>. You’re in full control of your voice.</p>
+        <p className="text-gray-700 text-lg">
+          Private polls are <span className="font-semibold text-blue-700">never shared</span>. You’re in full control of your voice.
+        </p>
       </section>
 
       {/* Featured Polls Section */}
       <section className="mb-12 text-left max-w-5xl mx-auto">
         <h2 className="text-3xl font-semibold text-blue-800 mb-6 animate-slide-up">Trending Polls</h2>
-
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <input
             type="text"
@@ -175,14 +179,11 @@ const Home = () => {
             onChange={(e) => setSelectedTag(e.target.value)}
             className="px-4 py-2 border rounded-lg w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all duration-300"
           >
-            {uniqueTags.map((tag) => (
-              <option key={tag} value={tag}>
-                {tag}
-              </option>
+            {uniqueTags.map(tag => (
+              <option key={tag} value={tag}>{tag}</option>
             ))}
           </select>
         </div>
-
         <PollsDisplay />
       </section>
 
